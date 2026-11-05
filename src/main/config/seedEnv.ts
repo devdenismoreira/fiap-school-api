@@ -1,8 +1,7 @@
 import { z } from 'zod';
 import { loadDatabaseEnv, type DatabaseEnv } from './env';
 
-export const DEFAULT_SEED_SOURCE_PATH =
-  '../FiapSchoolMobile/src/data/datasources/local/responsaveis.json';
+export const DEFAULT_SEED_SOURCE_PATH = 'prisma/data/responsaveis.json';
 
 const seedSchema = z.object({
   SEED_SOURCE_PATH: z.string().min(1).default(DEFAULT_SEED_SOURCE_PATH),

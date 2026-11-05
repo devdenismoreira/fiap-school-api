@@ -146,7 +146,7 @@ Variáveis validadas com zod em `src/main/config/env.ts`. O app não sobe se fal
 | `CORS_ORIGINS` | Origens permitidas; vazio = nenhuma; sem `*`; só `https://` em produção |
 | `TRUST_PROXY` | Número de proxies à frente da API |
 | `HTTPS_KEY_PATH`, `HTTPS_CERT_PATH` | Opcionais: HTTPS local (`mkcert`) |
-| `SEED_SOURCE_PATH` | Caminho do JSON do app (D-12) |
+| `SEED_SOURCE_PATH` | Caminho do JSON do desafio; padrão `prisma/data/responsaveis.json` (D-12) |
 
 Os testes de integração leem `DATABASE_URL` e `DIRECT_URL` de um `.env.test`, fora do git, apontando para `schema=fiap_school_test`. O setup da suíte aborta se o schema de qualquer uma das duas não terminar em `_test`.
 

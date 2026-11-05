@@ -8,7 +8,7 @@ Popular o banco com os mesmos responsáveis, alunos, agendas e boletins do JSON 
 
 ## 2. Regras
 
-1. Lê o arquivo do caminho em `SEED_SOURCE_PATH` (por padrão, `../FiapSchoolMobile/src/data/datasources/local/responsaveis.json`). Se não existir, falha com mensagem clara, sem mostrar conteúdo.
+1. Lê o arquivo do caminho em `SEED_SOURCE_PATH` (por padrão, `prisma/data/responsaveis.json`, movido do app em 2026-11-05). Se não existir, falha com mensagem clara, sem mostrar conteúdo.
 2. Valida a estrutura com zod, no formato do JSON (`ResponsavelDTO` + `cpf`, `email` e `senha`). Se o formato for inesperado, aborta antes de gravar.
 3. Grava a senha com bcrypt, no custo de `BCRYPT_COST` (D-09). A senha em texto nunca vai para o banco nem para o log.
 4. **Idempotente:** numa única transação, apaga os dados e regrava tudo.

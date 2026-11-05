@@ -84,6 +84,7 @@ Fluxo de cada tarefa: `/specify` → aprovação → `/plan` → aprovação →
 2. O certificado da CA raiz do Supabase já está versionado em `certs/supabase-ca.crt`. Ele é público e vale para todos os projetos. Para conferir: `openssl x509 -in certs/supabase-ca.crt -noout -subject -fingerprint -sha256` deve mostrar `CN=Supabase Root 2021 CA` e `80:70:25:AD:50:D4:ED:21:9D:2C:9C:7D:29:9C:00:4F:82:4E:B0:0C:F7:F6:5A:FE:F6:07:D0:7B:72:E6:CA:FA`. O mesmo certificado pode ser baixado no painel (Project Settings → Database → SSL Configuration).
 3. Copie `.env.example` para `.env` e preencha `DATABASE_URL` e `DIRECT_URL` com o usuário, a senha e o host das strings do painel (Connect → ORMs → Prisma). Use os parâmetros do `.env.example`, não o `?pgbouncer=true` do painel, e codifique `@` como `%40` e `#` como `%23` na senha.
 4. Copie o `.env` para `.env.test`, troque o schema das duas URLs para `fiap_school_test` e use `NODE_ENV=test` e `LOG_LEVEL=silent`.
+5. Gere as chaves JWT (ES256) e o segredo do limite por CPF, um conjunto por arquivo: `yarn keys:generate .env && yarn keys:generate .env.test`. O script só acrescenta o que falta, nunca sobrescreve uma chave existente, não mostra valores e recusa o `.env.example`.
 
 O `.env` e o `.env.test` ficam fora do git. A API não sobe sem as variáveis obrigatórias, com a `DATABASE_URL` sem `sslmode=verify-full` (D-26) ou sem schema. Execute os comandos na raiz do projeto, porque o caminho do certificado é relativo a ela.
 
@@ -98,6 +99,7 @@ O `.env` e o `.env.test` ficam fora do git. A API não sobe sem as variáveis ob
 | `yarn format` | Formata o código com Prettier |
 | `yarn test` | Testes de unidade, sem banco e sem rede |
 | `yarn test:integration` | Testes HTTP no schema `fiap_school_test` do Supabase; exige internet e o projeto ativo |
+| `yarn keys:generate <arquivo>` | Acrescenta ao arquivo `.env` informado as chaves JWT e o `CPF_HMAC_SECRET` que faltarem |
 | `yarn prisma:migrate` | Aplica as migrations pendentes no schema do `.env` (altera o banco) |
 | `yarn db:seed` | Apaga e regrava os dados do JSON do app no schema do `.env`; mostra só o destino e as contagens |
 

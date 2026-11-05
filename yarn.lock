@@ -2771,6 +2771,14 @@ expect@30.5.2, expect@^30.0.0:
     jest-mock "30.5.2"
     jest-util "30.5.1"
 
+express-rate-limit@^8.7.3:
+  version "8.7.3"
+  resolved "https://registry.yarnpkg.com/express-rate-limit/-/express-rate-limit-8.7.3.tgz#102f69b904bbb06225a304fef02002983e3fc406"
+  integrity sha512-zPLqDI2f0gV2WmGnacLf9XSSqn4VldRyP5LCzOwx0BKH40mO6+2PCFkoSsRO2jePx87/Kf6NUF6P2QOTKXHbQA==
+  dependencies:
+    debug "^4.4.3"
+    ip-address "^10.2.0"
+
 express@^5.3.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/express/-/express-5.3.0.tgz#ab72dace89c50c8417bd3f865dad0b4fd1ca1c73"
@@ -3251,6 +3259,11 @@ inherits@~2.0.4:
   resolved "https://registry.yarnpkg.com/internmap/-/internmap-2.0.3.tgz#6685f23755e43c524e251d29cbc97248e3061009"
   integrity sha512-5Hh7Y1wQbvY5ooGgPbDaL5iYLAPzMTUrjMulskHLH6wnv/A+1q5rgEaiuqEjB+oxGXIVZs1FF+R/KPN3ZSQYYg==
 
+ip-address@^10.2.0:
+  version "10.7.6"
+  resolved "https://registry.yarnpkg.com/ip-address/-/ip-address-10.7.6.tgz#e3c06961cedf352494c06c916c696cfdb11068dd"
+  integrity sha512-00LYkM6byILa9eQIx6qoaXCM40xTLd56AZ4vyaPW3YTyb49VZYPo5xsiAq4tuQ54GH4R7gVdYScJ1B7B77PuTg==
+
 ipaddr.js@1.9.1:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/ipaddr.js/-/ipaddr.js-1.9.1.tgz#bff38543eeb8984825079ff3a2a8e6cbd46781b3"
@@ -3722,6 +3735,11 @@ jiti@^2.6.1:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/jiti/-/jiti-2.7.0.tgz#974228f2f4ca2bc21885a1797b45fea68e950c64"
   integrity sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==
+
+jose@^6.2.15:
+  version "6.2.15"
+  resolved "https://registry.yarnpkg.com/jose/-/jose-6.2.15.tgz#b1016c7e0a33d711bffc25598526b62d57730a27"
+  integrity sha512-qdF6ewcZARtef63fJ9AKKZPgxw+t7USH6HLXYcD4CrdmSvDp79rpJSPFEKc90QBeGS63u1KQtN2MZQHC0yDIzA==
 
 js-tokens@^4.0.0:
   version "4.0.0"
@@ -4264,12 +4282,22 @@ pino-abstract-transport@^3.0.0:
   dependencies:
     split2 "^4.0.0"
 
+pino-http@^11.0.0:
+  version "11.0.0"
+  resolved "https://registry.yarnpkg.com/pino-http/-/pino-http-11.0.0.tgz#ebadef4694fc59aadab9be7e5939aea625b4615f"
+  integrity sha512-wqg5XIAGRRIWtTk8qPGxkbrfiwEWz1lgedVLvhLALudKXvg1/L2lTFgTGPJ4Z2e3qcRmxoFxDuSdMdMGNM6I1g==
+  dependencies:
+    get-caller-file "^2.0.5"
+    pino "^10.0.0"
+    pino-std-serializers "^7.0.0"
+    process-warning "^5.0.0"
+
 pino-std-serializers@^7.0.0:
   version "7.1.0"
   resolved "https://registry.yarnpkg.com/pino-std-serializers/-/pino-std-serializers-7.1.0.tgz#a7b0cd65225f29e92540e7853bd73b07479893fc"
   integrity sha512-BndPH67/JxGExRgiX1dX0w1FvZck5Wa4aal9198SrRhZjH3GxKQUKIBnYJTdj2HDN3UQAS06HlfcSbQj2OHmaw==
 
-pino@^10.4.0:
+pino@^10.0.0, pino@^10.4.0:
   version "10.4.0"
   resolved "https://registry.yarnpkg.com/pino/-/pino-10.4.0.tgz#8371a2633094100be30b6bf73fd69e29749588d5"
   integrity sha512-bk1ZMTwG/Vymx+zPoa28MhNzucFvXJWp3csrSuxuHPSMeUettaCoQ5Jvg07mtC4JGNpcfTwz41oVCnNgBK9+vA==

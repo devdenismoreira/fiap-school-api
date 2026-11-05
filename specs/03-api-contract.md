@@ -32,7 +32,10 @@ Fonte do formato: `ResponsavelDTO` do app (`../FiapSchoolMobile/src/data/datasou
 | `MUITAS_TENTATIVAS` | 429 | Limite atingido; cabeçalho `Retry-After` em segundos |
 | `ERRO_INTERNO` | 500 | Erro inesperado, sem detalhes |
 
-Mensagens fixas definidas na T01: `DADOS_INVALIDOS` → "Dados inválidos.", `NAO_ENCONTRADO` → "Recurso não encontrado." e `ERRO_INTERNO` → "Erro interno.". As demais são definidas na tarefa que introduz o código.
+Mensagens fixas:
+- T01: `DADOS_INVALIDOS` → "Dados inválidos.", `NAO_ENCONTRADO` → "Recurso não encontrado." e `ERRO_INTERNO` → "Erro interno.".
+- T03: `CREDENCIAIS_INVALIDAS` → "Usuário ou senha inválida.", `TOKEN_INVALIDO` → "Token de acesso inválido.", `TOKEN_EXPIRADO` → "Token de acesso expirado.", `REFRESH_INVALIDO` → "Sessão inválida ou expirada.", `ALUNO_NAO_ENCONTRADO` → "Aluno não encontrado." e `MUITAS_TENTATIVAS` → "Muitas tentativas. Tente novamente mais tarde.".
+- `HTTPS_OBRIGATORIO` é definida na T04.
 
 ## 2. Objeto `Responsavel`
 

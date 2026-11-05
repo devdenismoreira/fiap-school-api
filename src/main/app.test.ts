@@ -4,12 +4,26 @@ import { createApp } from './app';
 
 function buildApp(isAvailable: () => Promise<boolean>) {
   const logger = { info: jest.fn(), error: jest.fn() };
+  const requestLogger = jest.fn<void, [unknown, unknown, () => void]>(
+    (_request, _response, next) => next(),
+  );
   const app = createApp({
     logger,
+    requestLogger,
     healthController: new HealthController({ isAvailable }),
   });
-  return { app, logger };
+  return { app, logger, requestLogger };
 }
+
+describe('registro das requisições', () => {
+  it('passa toda requisição pelo logger HTTP', async () => {
+    const { app, requestLogger } = buildApp(() => Promise.resolve(true));
+
+    await request(app).get('/health');
+
+    expect(requestLogger).toHaveBeenCalledTimes(1);
+  });
+});
 
 describe('GET /health', () => {
   it('responde 200 com status ok quando o banco responde', async () => {

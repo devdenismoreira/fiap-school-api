@@ -20,15 +20,19 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
     "db:seed": "prisma db seed",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "keys:generate": "tsx scripts/generateKeys.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
     "@prisma/client": "^7.10.1",
     "bcrypt": "^6.0.0",
     "express": "^5.3.0",
+    "express-rate-limit": "^8.7.3",
     "helmet": "^8.3.0",
+    "jose": "^6.2.15",
     "pino": "^10.4.0",
+    "pino-http": "^11.0.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {

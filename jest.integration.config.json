@@ -3,12 +3,22 @@
   "roots": ["<rootDir>/tests/integration"],
   "testMatch": ["**/*.test.ts"],
   "transform": {
-    "^.+\\.ts$": "ts-jest"
+    "^.+\\.ts$": "ts-jest",
+    "^.+/node_modules/jose/.+\\.js$": [
+      "ts-jest",
+      {
+        "tsconfig": {
+          "allowJs": true
+        },
+        "isolatedModules": true
+      }
+    ]
   },
   "moduleNameMapper": {
     "^@/(.*)$": "<rootDir>/src/$1"
   },
   "globalSetup": "<rootDir>/tests/integration/globalSetup.ts",
   "testTimeout": 30000,
-  "clearMocks": true
+  "clearMocks": true,
+  "transformIgnorePatterns": ["/node_modules/(?!jose/)"]
 }

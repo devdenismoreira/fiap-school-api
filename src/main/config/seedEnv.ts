@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { loadEnv, type Env } from './env';
+import { loadDatabaseEnv, type DatabaseEnv } from './env';
 
 export const DEFAULT_SEED_SOURCE_PATH =
   '../FiapSchoolMobile/src/data/datasources/local/responsaveis.json';
@@ -10,8 +10,8 @@ const seedSchema = z.object({
 });
 
 export type SeedEnv = Readonly<{
-  nodeEnv: Env['nodeEnv'];
-  database: Env['database'];
+  nodeEnv: DatabaseEnv['nodeEnv'];
+  database: DatabaseEnv['database'];
   sourcePath: string;
   bcryptCost: number;
 }>;
@@ -20,7 +20,7 @@ export function loadSeedEnv(
   source: NodeJS.ProcessEnv,
   args: readonly string[],
 ): SeedEnv {
-  const env = loadEnv(source);
+  const env = loadDatabaseEnv(source);
   const result = seedSchema.safeParse(source);
   if (!result.success) {
     const names = result.error.issues.map(issue => issue.path.join('.'));

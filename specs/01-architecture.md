@@ -137,11 +137,11 @@ Variáveis validadas com zod em `src/main/config/env.ts`. O app não sobe se fal
 | `NODE_ENV`, `PORT`, `LOG_LEVEL` | Execução |
 | `DATABASE_URL` | Prisma em execução: pooler do Supabase em modo transação, com `?schema=fiap_school&sslmode=verify-full&sslrootcert=certs/supabase-ca.crt` (D-26) |
 | `DIRECT_URL` | Migrations: pooler em modo sessão, com `?schema=fiap_school&sslmode=require`. Lida só pelo `prisma.config.ts` (D-24) |
-| `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY` | Chaves ES256 (PEM) |
+| `JWT_PRIVATE_KEY`, `JWT_PUBLIC_KEY` | Chaves ES256 (PEM), geradas com `yarn keys:generate <arquivo>`. Aceitam a chave numa linha só, com `\n` escrito |
 | `JWT_ISSUER`, `JWT_AUDIENCE` | `fiap-school-api` e `fiap-school-mobile` |
 | `ACCESS_TOKEN_TTL_SECONDS`, `REFRESH_TOKEN_TTL_SECONDS` | 900 e 2592000 |
 | `BCRYPT_COST` | 12 (mínimo 12) |
-| `CPF_HMAC_SECRET` | Chave do limite por CPF |
+| `CPF_HMAC_SECRET` | Chave do limite por CPF, com no mínimo 32 caracteres; gerada pelo mesmo script |
 | `CORS_ORIGINS` | Origens permitidas; vazio = nenhuma; sem `*`; só `https://` em produção |
 | `TRUST_PROXY` | Número de proxies à frente da API |
 | `HTTPS_KEY_PATH`, `HTTPS_CERT_PATH` | Opcionais: HTTPS local (`mkcert`) |
@@ -149,7 +149,7 @@ Variáveis validadas com zod em `src/main/config/env.ts`. O app não sobe se fal
 
 Os testes de integração leem `DATABASE_URL` e `DIRECT_URL` de um `.env.test`, fora do git, apontando para `schema=fiap_school_test`. O setup da suíte aborta se o schema de qualquer uma das duas não terminar em `_test`.
 
-Cada tarefa acrescenta ao `env.ts` as variáveis que passa a usar; o `.env.example` documenta todas desde a T01.
+Cada tarefa acrescenta ao `env.ts` as variáveis que passa a usar; o `.env.example` documenta todas desde a T01. Desde a T03, o `loadEnv` exige as chaves JWT e o `CPF_HMAC_SECRET`; `JWT_ISSUER`, `JWT_AUDIENCE`, os TTLs e o `BCRYPT_COST` têm os padrões desta tabela. O seed usa o `loadDatabaseEnv`, que exige só `NODE_ENV` e `DATABASE_URL`.
 
 Na `DATABASE_URL`, o único `sslmode` aceito é `verify-full` (D-26); sem ele, o app não sobe. Na `DIRECT_URL` e na trava dos testes, basta TLS obrigatório: `require`, `verify-ca` ou `verify-full`. O caminho do `sslrootcert` é relativo à pasta de onde a API é executada, a raiz do projeto.
 

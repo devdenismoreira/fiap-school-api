@@ -1309,5 +1309,187 @@
         ]
       }
     ]
+  },
+  {
+    "id": 3,
+    "cpf": "33366699957",
+    "email": "carla.mendes@exemplo.com",
+    "senha": "112233",
+    "primeiroNome": "Carla",
+    "sobrenome": "Mendes",
+    "alunos": []
+  },
+  {
+    "id": 4,
+    "cpf": "44477700083",
+    "email": "diego.rocha@exemplo.com",
+    "senha": "445566",
+    "primeiroNome": "Diego",
+    "sobrenome": "Rocha",
+    "alunos": [
+      {
+        "rm": 30001,
+        "turma": "8EF",
+        "periodo": "Matutino",
+        "primeiroNome": "Felipe",
+        "sobrenome": "Rocha",
+        "agenda": [
+          {
+            "dia": "2025-03-16",
+            "aulas": []
+          },
+          {
+            "dia": "2025-03-17",
+            "aulas": [
+              {
+                "horario": "07:15 - 08:00",
+                "disciplina": "Matemática I"
+              },
+              {
+                "horario": "08:00 - 08:45",
+                "disciplina": "Língua Inglesa"
+              },
+              {
+                "horario": "09:15 - 10:00",
+                "disciplina": "Língua Inglesa"
+              },
+              {
+                "horario": "10:00 - 10:45",
+                "disciplina": "Ciências"
+              },
+              {
+                "horario": "10:45 - 11:30",
+                "disciplina": "Ciências"
+              },
+              {
+                "horario": "11:30 - 12:15",
+                "disciplina": "Coding"
+              }
+            ]
+          },
+          {
+            "dia": "2025-03-18",
+            "aulas": [
+              {
+                "horario": "07:15 - 08:00",
+                "disciplina": "Produção e Interpretação de Textos"
+              },
+              {
+                "horario": "08:00 - 08:45",
+                "disciplina": "Matemática II"
+              },
+              {
+                "horario": "09:15 - 10:00",
+                "disciplina": "Produção e Interpretação de Textos"
+              },
+              {
+                "horario": "10:00 - 10:45",
+                "disciplina": "Língua Portuguesa"
+              },
+              {
+                "horario": "10:45 - 11:30",
+                "disciplina": "Língua Portuguesa"
+              },
+              {
+                "horario": "11:30 - 12:15",
+                "disciplina": "Língua Inglesa"
+              }
+            ]
+          },
+          {
+            "dia": "2025-03-19",
+            "aulas": [
+              {
+                "horario": "07:15 - 08:00",
+                "disciplina": "Ciências"
+              },
+              {
+                "horario": "08:00 - 08:45",
+                "disciplina": "Ciências"
+              },
+              {
+                "horario": "09:15 - 10:00",
+                "disciplina": "Arte"
+              },
+              {
+                "horario": "10:00 - 10:45",
+                "disciplina": "Arte"
+              },
+              {
+                "horario": "10:45 - 11:30",
+                "disciplina": "Matemática II"
+              },
+              {
+                "horario": "11:30 - 12:15",
+                "disciplina": "Produção e Interpretação de Textos"
+              }
+            ]
+          },
+          {
+            "dia": "2025-03-20",
+            "aulas": [
+              {
+                "horario": "07:15 - 08:00",
+                "disciplina": "Projeto"
+              },
+              {
+                "horario": "08:00 - 08:45",
+                "disciplina": "Projeto"
+              },
+              {
+                "horario": "09:15 - 10:00",
+                "disciplina": "Projeto"
+              },
+              {
+                "horario": "10:00 - 10:45",
+                "disciplina": "Língua Inglesa"
+              },
+              {
+                "horario": "10:45 - 11:30",
+                "disciplina": "Educação Física"
+              },
+              {
+                "horario": "11:30 - 12:15",
+                "disciplina": "Educação Física"
+              }
+            ]
+          },
+          {
+            "dia": "2025-03-21",
+            "aulas": [
+              {
+                "horario": "07:15 - 08:00",
+                "disciplina": "Matemática II"
+              },
+              {
+                "horario": "08:00 - 08:45",
+                "disciplina": "História"
+              },
+              {
+                "horario": "09:15 - 10:00",
+                "disciplina": "Geografia"
+              },
+              {
+                "horario": "10:00 - 10:45",
+                "disciplina": "Matemática I"
+              },
+              {
+                "horario": "10:45 - 11:30",
+                "disciplina": "Matemática I"
+              },
+              {
+                "horario": "11:30 - 12:15",
+                "disciplina": "Matemática I"
+              }
+            ]
+          },
+          {
+            "dia": "2025-03-22",
+            "aulas": []
+          }
+        ],
+        "boletim": []
+      }
+    ]
   }
 ]

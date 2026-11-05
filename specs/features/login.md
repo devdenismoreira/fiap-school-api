@@ -29,9 +29,11 @@ Autenticar o responsável por CPF e senha, abrir uma sessão e devolver, numa s�
 
 | Camada | Item |
 |---|---|
-| Domain | Caso de uso `login(cpf, password)`; portas `GuardianRepository.findByCpf`, `PasswordHasher.verify`, `SessionRepository.create`, `RefreshTokenGenerator.generate`, `AccessTokenService.issue` e `Clock`; erro `InvalidCredentialsError` |
-| Infra | `PrismaGuardianRepository.findByCpf` (com o agregado), `BcryptPasswordHasher`, `PrismaSessionRepository.create` (sessão e primeiro refresh na mesma transação), `CryptoRefreshTokenGenerator` e `JoseAccessTokenService` |
-| Presentation | `authRoutes`, `loginSchema`, `LoginController`, `tokensView`, `guardianView`, limites por IP e por CPF, `noStore` |
+| Domain | Caso de uso `login(cpf, password)`; portas `GuardianRepository.findByCpf` e `findById`, `PasswordHasher.verify`, `SessionRepository.create`, `RefreshTokenGenerator.generate`, `AccessTokenService.issue` e `Clock`; erro `InvalidCredentialsError` |
+| Infra | `PrismaGuardianRepository.findByCpf` (só `guardianId` e o hash) e `findById` (o agregado, carregado só depois de a senha conferir), `BcryptPasswordHasher`, `PrismaSessionRepository.create` (sessão e primeiro refresh na mesma transação), `CryptoRefreshTokenGenerator` e `JoseAccessTokenService` |
+| Presentation | `authRoutes`, `loginSchema`, `LoginController`, `tokensView`, `loginView`, `guardianView`, limites por IP e por CPF, `noStore` |
+
+Ordem: `noStore` para todo `/v1`, aplicado no `app.ts` antes do parser de JSON, para valer também nas respostas 400 (inclusive JSON malformado) e 429 → limite por IP → validação → limite por CPF → controller (T05, 2026-11-05).
 
 ## 4. Casos de borda
 
@@ -43,11 +45,11 @@ Autenticar o responsável por CPF e senha, abrir uma sessão e devolver, numa s�
 
 ## 5. Critérios de aceite
 
-- [ ] Login válido de cada responsável da fonte do seed responde 200, com `responsavel` igual ao JSON sem `cpf`, `email` e `senha`.
-- [ ] Cada login cria uma sessão, e o `accessToken` traz `sub`, `sid`, `iss`, `aud`, `exp` e `jti`, sem dados pessoais.
-- [ ] `refreshToken` gravado só como hash, ligado à sessão.
-- [ ] CPF inexistente, dígito verificador inválido e senha errada produzem a mesma resposta 401.
-- [ ] Corpo malformado ou senha com mais de 72 bytes respondem 400 `DADOS_INVALIDOS`.
-- [ ] 429 com `Retry-After` após 5 falhas para o mesmo CPF.
-- [ ] `Cache-Control: no-store` presente.
-- [ ] Nenhum log contém CPF, senha ou token.
+- [x] Login válido de cada responsável da fonte do seed responde 200, com `responsavel` igual ao JSON sem `cpf`, `email` e `senha`.
+- [x] Cada login cria uma sessão, e o `accessToken` traz `sub`, `sid`, `iss`, `aud`, `exp` e `jti`, sem dados pessoais.
+- [x] `refreshToken` gravado só como hash, ligado à sessão.
+- [x] CPF inexistente, dígito verificador inválido e senha errada produzem a mesma resposta 401.
+- [x] Corpo malformado ou senha com mais de 72 bytes respondem 400 `DADOS_INVALIDOS`.
+- [x] 429 com `Retry-After` após 5 falhas para o mesmo CPF.
+- [x] `Cache-Control: no-store` presente.
+- [x] Nenhum log contém CPF, senha ou token.

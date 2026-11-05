@@ -1,5 +1,6 @@
 import request from 'supertest';
 import { HealthController } from '@/presentation/controllers/HealthController';
+import { healthRoutes } from '@/presentation/routes/healthRoutes';
 import { createApp } from './app';
 
 function buildApp(isAvailable: () => Promise<boolean>) {
@@ -10,7 +11,7 @@ function buildApp(isAvailable: () => Promise<boolean>) {
   const app = createApp({
     logger,
     requestLogger,
-    healthController: new HealthController({ isAvailable }),
+    routers: [healthRoutes(new HealthController({ isAvailable }))],
   });
   return { app, logger, requestLogger };
 }
@@ -104,5 +105,29 @@ describe('corpo da requisição', () => {
 
     expect(response.status).toBe(400);
     expect(response.body).toEqual(invalidData);
+  });
+});
+
+describe('Cache-Control das rotas /v1', () => {
+  it('envia no-store em toda resposta sob /v1, inclusive 404 e JSON malformado', async () => {
+    const { app } = buildApp(() => Promise.resolve(true));
+
+    const notFound = await request(app).get('/v1/nao-existe');
+    const malformed = await request(app)
+      .post('/v1/auth/login')
+      .set('Content-Type', 'application/json')
+      .send('{"cpf":');
+
+    expect(notFound.headers['cache-control']).toBe('no-store');
+    expect(malformed.status).toBe(400);
+    expect(malformed.headers['cache-control']).toBe('no-store');
+  });
+
+  it('não muda o /health', async () => {
+    const { app } = buildApp(() => Promise.resolve(true));
+
+    const response = await request(app).get('/health');
+
+    expect(response.headers['cache-control']).toBeUndefined();
   });
 });

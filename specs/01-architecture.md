@@ -91,21 +91,22 @@ Ordem global, em `app.ts`:
 2. `requireHttps`: só em produção; deixa `/health` passar.
 3. `helmet`: inclui HSTS em produção.
 4. `cors`: lista de `CORS_ORIGINS`; preflight responde antes do limite de tentativas.
-5. `express.json({ limit: '10kb' })`.
-6. `pino-http`, com redaction.
-7. Rotas, cada uma com o próprio limite, validação, `noStore` e `requireAuth` quando preciso.
-8. Rota 404 e `errorHandler`.
+5. `noStore` em todo `/v1`, antes do parser: assim até o 400 de JSON malformado e o 404 sob `/v1` saem com `Cache-Control: no-store` (T05).
+6. `express.json({ limit: '10kb' })`.
+7. `pino-http`, com redaction.
+8. Rotas, cada uma com o próprio limite, validação e `requireAuth` quando preciso.
+9. Rota 404 e `errorHandler`.
 
 ## 6. Fluxo de uma requisição
 
 `POST /v1/auth/login`:
 
-1. Middlewares globais (§5) → limite por IP → `validate(loginSchema)` → limite por CPF → `noStore` → `LoginController`.
+1. Middlewares globais (§5, inclusive o `noStore` de `/v1`) → limite por IP → `validate(loginSchema)` → limite por CPF → `LoginController`.
 2. O controller chama `login({ cpf, password })`.
-3. O caso de uso valida o dígito verificador do CPF e busca o responsável.
+3. O caso de uso valida o dígito verificador do CPF e busca as credenciais (`findByCpf`).
    - Com a senha errada ou o CPF inexistente, verifica o hash do mesmo jeito (contra um hash fictício) e lança `InvalidCredentialsError`.
-   - Com sucesso, cria a sessão, gera o refresh (só o hash vai ao banco), emite o access com `sub` e `sid` e devolve `{ guardian, tokens }`.
-4. O controller responde 200 com `tokensView(tokens)` mais `responsavel: guardianView(guardian)`.
+   - Com sucesso, carrega o agregado (`findById`), cria a sessão, gera o refresh (só o hash vai ao banco), emite o access com `sub` e `sid` e devolve `{ guardian, tokens }`.
+4. O controller registra o evento (sucesso ou falha) só com o HMAC do CPF e responde 200 com `loginView`: `tokensView(tokens)` mais `responsavel: guardianView(guardian)`.
 5. Os erros sobem ao `errorHandler`, que traduz cada erro de domínio para status e código (spec 03). Erro desconhecido vira 500 genérico; os detalhes ficam só no log, com redaction.
 
 `GET /v1/alunos/{rm}/agenda`:

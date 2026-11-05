@@ -1,9 +1,13 @@
 import request from 'supertest';
 import { loadEnv } from '@/main/config/env';
-import { createDependencies } from '@/main/dependencies';
+import { createDependencies, type Dependencies } from '@/main/dependencies';
 
 describe('GET /health com o banco de teste no Supabase', () => {
-  const dependencies = createDependencies(loadEnv(process.env));
+  let dependencies: Dependencies;
+
+  beforeAll(async () => {
+    dependencies = await createDependencies(loadEnv(process.env));
+  });
 
   afterAll(() => dependencies.close());
 

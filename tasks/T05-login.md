@@ -31,4 +31,26 @@ Os de `features/login.md` §5, com testes de unidade (caso de uso com fakes) e d
 
 ## Status
 
-Não iniciada.
+**Concluída em 2026-11-05.** Todos os critérios de `features/login.md` §5 estão marcados e cobertos por testes.
+
+Entregue:
+- **Domain:** caso de uso `createLogin`, com o tipo `SessionTokens`, que a T07 reaproveita.
+- **Presentation:**
+  - `loginSchema` (senha de 1 a 72 bytes em UTF-8, sem `trim`);
+  - `tokensView` e `loginView`;
+  - `LoginController`, que registra `login_sucesso` e `login_falha` só com o HMAC do CPF;
+  - `authRoutes`.
+- **Main:**
+  - `createDependencies` passou a ser assíncrono (hash fictício do bcrypt e importação das chaves);
+  - `createApp` recebe a lista de rotas;
+  - limites de login: 20 por minuto por IP e 5 falhas a cada 15 minutos por CPF.
+
+Decisões (registradas em `features/login.md` §3 e na spec 01 §5–6):
+- **Credenciais primeiro:** o `findByCpf` traz só as credenciais, e o agregado vem do `findById` depois de a senha conferir. Uma tentativa errada não carrega dados de alunos.
+- **`no-store` em todo `/v1`, no `app.ts`, antes do parser de JSON.** O teste de integração mostrou que, aplicado na rota, o 400 de JSON malformado saía sem o cabeçalho.
+
+Validação:
+- `yarn typecheck` e `yarn lint` passando;
+- `yarn test`: 186 testes passando;
+- `yarn test:integration`: 49 testes passando, 14 deles de login, com as credenciais lidas da fonte do seed;
+- no `yarn dev`, um login com corpo inválido responde 400 com `no-store` e os cabeçalhos `RateLimit`.

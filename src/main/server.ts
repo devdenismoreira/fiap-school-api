@@ -1,9 +1,9 @@
 import { loadEnv } from './config/env';
 import { createDependencies } from './dependencies';
 
-function start(): void {
+async function start(): Promise<void> {
   const env = loadEnv(process.env);
-  const { app, logger, close } = createDependencies(env);
+  const { app, logger, close } = await createDependencies(env);
 
   const server = app.listen(env.port, error => {
     if (error) {
@@ -24,11 +24,9 @@ function start(): void {
   process.once('SIGINT', shutdown);
 }
 
-try {
-  start();
-} catch (error) {
+start().catch((error: unknown) => {
   console.error(
     error instanceof Error ? error.message : 'Falha ao iniciar a API.',
   );
   process.exitCode = 1;
-}
+});

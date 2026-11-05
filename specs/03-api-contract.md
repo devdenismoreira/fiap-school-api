@@ -121,11 +121,11 @@ No app, `getById(id)` chama este endpoint (renovando antes, se não houver acces
 
 Autenticação: Bearer. Autorização: o aluno precisa estar vinculado ao responsável do token (`features/students.md`).
 
-- **200:**
-  - `agenda`: array de `{ dia, aulas: [{ horario, disciplina }] }`;
-  - `boletins`: array de `{ ano, turma, trimestres: [{ trimestre, disciplinas: [{ nome, nota, faltas }] }] }`;
-  - mesmas regras de ordem e `null` do objeto `Responsavel`.
-- **400:** `DADOS_INVALIDOS` (RM não numérico, negativo ou com mais de 9 dígitos).
+- **200** (D-27):
+  - `/agenda`: `{ "agenda": [{ "dia", "aulas": [{ "horario", "disciplina" }] }] }`;
+  - `/boletins`: `{ "boletins": [{ "ano", "turma", "trimestres": [{ "trimestre", "disciplinas": [{ "nome", "nota", "faltas" }] }] }] }`;
+  - os arrays são os mesmos `agenda` e `boletim` do aluno no objeto `Responsavel`, com as mesmas regras de ordem e `null`.
+- **400:** `DADOS_INVALIDOS` (RM que não seja inteiro positivo de 1 a 9 dígitos, sem zero à esquerda: não numérico, negativo, `0`, decimal, notação científica ou com mais de 9 dígitos).
 - **401:** `TOKEN_INVALIDO` ou `TOKEN_EXPIRADO`.
 - **404:** `ALUNO_NAO_ENCONTRADO`, idêntico para RM inexistente e para RM de outro responsável.
 

@@ -7,6 +7,10 @@ import { createGetCurrentGuardian } from '@/domain/usecases/getCurrentGuardian';
 import { createLogin } from '@/domain/usecases/login';
 import { createLogout } from '@/domain/usecases/logout';
 import { createRefreshSession } from '@/domain/usecases/refreshSession';
+import {
+  createGetStudentReportCards,
+  createGetStudentSchedule,
+} from '@/domain/usecases/studentRecords';
 import { PrismaDatabaseHealthCheck } from '@/infra/database/PrismaDatabaseHealthCheck';
 import { createPrismaClient } from '@/infra/database/prismaClient';
 import { PrismaGuardianRepository } from '@/infra/database/repositories/PrismaGuardianRepository';
@@ -20,6 +24,7 @@ import { HealthController } from '@/presentation/controllers/HealthController';
 import { LoginController } from '@/presentation/controllers/LoginController';
 import { MeController } from '@/presentation/controllers/MeController';
 import { SessionController } from '@/presentation/controllers/SessionController';
+import { StudentController } from '@/presentation/controllers/StudentController';
 import {
   cpfRateLimitKey,
   createCpfRateLimit,
@@ -29,6 +34,7 @@ import { createRequireAuth } from '@/presentation/middlewares/requireAuth';
 import { authRoutes } from '@/presentation/routes/authRoutes';
 import { healthRoutes } from '@/presentation/routes/healthRoutes';
 import { meRoutes } from '@/presentation/routes/meRoutes';
+import { studentRoutes } from '@/presentation/routes/studentRoutes';
 import { createApp } from './app';
 import type { Env } from './config/env';
 
@@ -134,6 +140,14 @@ export async function createDependencies(
       }),
       meRoutes({
         meController: new MeController(createGetCurrentGuardian(guardians)),
+        authenticatedIpLimit,
+        requireAuth,
+      }),
+      studentRoutes({
+        studentController: new StudentController(
+          createGetStudentSchedule({ guardians, logger }),
+          createGetStudentReportCards({ guardians, logger }),
+        ),
         authenticatedIpLimit,
         requireAuth,
       }),

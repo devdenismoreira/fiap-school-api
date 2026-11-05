@@ -11,7 +11,7 @@ Cada tarefa tem escopo, dependências, critérios de aceite e estratégia de val
 | T05 | [Login](T05-login.md) ✅ | T02, T03 | `POST /v1/auth/login`, que abre a sessão |
 | T06 | [Responsável autenticado](T06-me.md) ✅ | T05 | `GET /v1/me` com `requireAuth` e verificação de sessão |
 | T07 | [Sessões: refresh e logout](T07-refresh-e-logout.md) ✅ | T05 | Rotação, reuso e revogação da sessão |
-| T08 | [Alunos com autorização](T08-alunos-com-autorizacao.md) | T06 | `/v1/alunos/{rm}/agenda` e `/boletins`, com vínculo verificado |
+| T08 | [Alunos com autorização](T08-alunos-com-autorizacao.md) ✅ | T06 | `/v1/alunos/{rm}/agenda` e `/boletins`, com vínculo verificado |
 | T09 | [Contrato e paridade](T09-contrato-e-paridade.md) | T04, T07, T08 | Swagger (`openapi.yaml`, `/docs`), paridade com o JSON do app |
 | T10 | [Integração no app](T10-integracao-no-app.md) | T09 | Datasource remoto, Keychain e interceptador no FiapSchoolMobile (executada lá) |
 | T11 | [Validação e entrega](T11-validacao-e-entrega.md) | T09 (e T10) | Deploy com HTTPS, README, `AI_USAGE.md`, revisão de segurança |

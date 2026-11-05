@@ -1,0 +1,17 @@
+node_modules/
+dist/
+coverage/
+src/infra/database/generated/
+*.log
+
+.env
+.env.*
+!.env.example
+*.pem
+
+.DS_Store
+.idea/
+.vscode/
+
+# Claude Code: configurações pessoais (o .claude/settings.json é compartilhado)
+.claude/settings.local.json

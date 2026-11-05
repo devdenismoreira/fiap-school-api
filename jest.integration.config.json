@@ -1,0 +1,14 @@
+{
+  "testEnvironment": "node",
+  "roots": ["<rootDir>/tests/integration"],
+  "testMatch": ["**/*.test.ts"],
+  "transform": {
+    "^.+\\.ts$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/src/$1"
+  },
+  "globalSetup": "<rootDir>/tests/integration/globalSetup.ts",
+  "testTimeout": 30000,
+  "clearMocks": true
+}

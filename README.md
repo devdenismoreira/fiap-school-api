@@ -2,7 +2,7 @@
 
 API do app [FIAP School Mobile](../FiapSchoolMobile). Ela substitui o JSON local do app por HTTP com autenticação JWT e sessões, **sem mudar telas, domínio nem a função de conversão do app**: o app troca só a camada de dados.
 
-> **Status:** fase _Specify/Plan_ do SDD. Specs e tarefas escritas e aguardando aprovação. Ainda não há código.
+> **Status:** specs aprovadas em 2026-11-05. T01 (fundação) implementada: projeto Express + TypeScript + Prisma com `/health`, lint, testes e trava dos testes de integração. A conexão com o Supabase será validada quando o projeto for criado.
 
 ## Endpoints planejados
 
@@ -21,10 +21,10 @@ O contrato completo está em [`specs/03-api-contract.md`](specs/03-api-contract.
 
 | Tecnologia | Responsabilidade |
 |---|---|
-| Node.js | Runtime |
-| Express | API REST |
-| TypeScript | Tipagem |
-| Prisma ORM | Acesso ao banco |
+| Node.js 22 | Runtime |
+| Express 5 | API REST |
+| TypeScript 6 | Tipagem |
+| Prisma ORM 7 (`@prisma/adapter-pg`) | Acesso ao banco |
 | PostgreSQL no Supabase | Banco de dados gerenciado, inclusive no desenvolvimento: schema `fiap_school` (dev) e `fiap_school_test` (testes) |
 | Zod | Validação |
 | JWT (`jose`, ES256) | Autenticação |
@@ -71,8 +71,39 @@ Detalhes em [`specs/01-architecture.md`](specs/01-architecture.md).
 
 Fluxo de cada tarefa: `/specify` → aprovação → `/plan` → aprovação → `/implement` → `/validate` → `/review`.
 
+## Como rodar
+
+### Pré-requisitos
+
+- Node.js 22.12 ou mais recente (`nvm use` lê o `.nvmrc`) e Yarn 1.22.
+- Um projeto no [Supabase](https://supabase.com) (plano gratuito, região São Paulo). Não há banco nem Docker no computador.
+
+### Configuração
+
+1. `yarn` instala as dependências e gera o cliente do Prisma.
+2. O certificado da CA raiz do Supabase já está versionado em `certs/supabase-ca.crt`. Ele é público e vale para todos os projetos. Para conferir: `openssl x509 -in certs/supabase-ca.crt -noout -subject -fingerprint -sha256` deve mostrar `CN=Supabase Root 2021 CA` e `80:70:25:AD:50:D4:ED:21:9D:2C:9C:7D:29:9C:00:4F:82:4E:B0:0C:F7:F6:5A:FE:F6:07:D0:7B:72:E6:CA:FA`. O mesmo certificado pode ser baixado no painel (Project Settings → Database → SSL Configuration).
+3. Copie `.env.example` para `.env` e preencha `DATABASE_URL` e `DIRECT_URL` com o usuário, a senha e o host das strings do painel (Connect → ORMs → Prisma). Use os parâmetros do `.env.example`, não o `?pgbouncer=true` do painel, e codifique `@` como `%40` e `#` como `%23` na senha.
+4. Copie o `.env` para `.env.test`, troque o schema das duas URLs para `fiap_school_test` e use `NODE_ENV=test` e `LOG_LEVEL=silent`.
+
+O `.env` e o `.env.test` ficam fora do git. A API não sobe sem as variáveis obrigatórias, com a `DATABASE_URL` sem `sslmode=verify-full` (D-26) ou sem schema. Execute os comandos na raiz do projeto, porque o caminho do certificado é relativo a ela.
+
+### Comandos
+
+| Comando | O que faz |
+|---|---|
+| `yarn dev` | Sobe a API em modo de desenvolvimento, lendo o `.env` |
+| `yarn build` e `yarn start` | Gera o cliente do Prisma, compila para `dist/` e executa |
+| `yarn typecheck` | Verificação de tipos |
+| `yarn lint` | ESLint (inclui a regra de dependência entre camadas) e Prettier |
+| `yarn format` | Formata o código com Prettier |
+| `yarn test` | Testes de unidade, sem banco e sem rede |
+| `yarn test:integration` | Testes HTTP no schema `fiap_school_test` do Supabase; exige internet e o projeto ativo |
+| `yarn prisma:migrate` | Cria e aplica migrations no schema do `.env` (altera o banco) |
+| `yarn db:seed` | Popula o banco com o JSON do app (T02) |
+
+Os testes de integração abortam se o `.env.test` não existir ou se `DATABASE_URL` ou `DIRECT_URL` apontarem para um schema que não termine em `_test`. O `.env.test` prevalece sobre variáveis já definidas no terminal.
+
 ## Próximos passos
 
-1. Criar o projeto no Supabase (região São Paulo), que é usado já no desenvolvimento.
-2. Aprovar as propostas e responder às dúvidas de `specs/00-project-overview.md` §7.
-3. Executar a T01 (fundação). O README ganha então as instruções de instalação e execução.
+1. Criar o projeto no Supabase, preencher `.env` e `.env.test` e validar `yarn dev` + `GET /health` e `yarn test:integration`.
+2. T02 (dados e seed), T03 (base de segurança) e T04 (CORS e HTTPS), que podem andar em paralelo.

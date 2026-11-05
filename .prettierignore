@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+src/infra/database/generated
+prisma/migrations
+yarn.lock
+*.md
+.claude

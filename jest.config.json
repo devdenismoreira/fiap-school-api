@@ -1,0 +1,12 @@
+{
+  "testEnvironment": "node",
+  "roots": ["<rootDir>/src", "<rootDir>/tests/support"],
+  "testMatch": ["**/*.test.ts"],
+  "transform": {
+    "^.+\\.ts$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@/(.*)$": "<rootDir>/src/$1"
+  },
+  "clearMocks": true
+}

@@ -22,9 +22,9 @@ Devolver o responsável dono do access token, no mesmo formato do login. Ao abri
 
 | Camada | Item |
 |---|---|
-| Domain | Caso de uso `getCurrentGuardian(guardianId)`; portas `GuardianRepository.findById`, `SessionRepository.findActive`, `AccessTokenService.verify` e `Clock` |
+| Domain | Casos de uso `authenticate(token)` (verifica o token, exige a sessão ativa e registra o uso no máximo uma vez por minuto) e `getCurrentGuardian(guardianId)`; portas `GuardianRepository.findById`, `SessionRepository.findActive` e `recordUse`, `AccessTokenService.verify` e `Clock` |
 | Infra | `PrismaGuardianRepository.findById`, com `include` aninhado e `orderBy` em todos os níveis; `PrismaSessionRepository.findActive` |
-| Presentation | `requireAuth`, `meRoutes`, `MeController`, `guardianView`, `noStore` |
+| Presentation | `requireAuth` (lê o `Bearer` e chama o `authenticate`), `meRoutes` (limite de 120 por minuto por IP → `requireAuth` → controller), `MeController`, `guardianView`; o `no-store` vale para todo `/v1` |
 
 ## 4. Paridade com o app
 
@@ -38,10 +38,10 @@ O teste de paridade compara o resultado com o JSON do app (T09).
 
 ## 5. Critérios de aceite
 
-- [ ] Com o token do login, 200 com o mesmo `responsavel` devolvido no login.
-- [ ] Sem cabeçalho, com `Basic`, com token adulterado, com `alg: none` ou com `aud` errado: 401 `TOKEN_INVALIDO`.
-- [ ] Depois do logout ou da revogação da sessão por reuso, o mesmo access token recebe 401 `TOKEN_INVALIDO`.
-- [ ] Token vencido (com `Clock` fake): 401 `TOKEN_EXPIRADO`.
-- [ ] Não existe forma de obter dados de outro responsável.
-- [ ] Dias sem aula vêm com `aulas: []`; `nota` e `faltas` nulos vêm `null`; os arrays seguem a ordem do JSON.
-- [ ] `Cache-Control: no-store` presente.
+- [x] Com o token do login, 200 com o mesmo `responsavel` devolvido no login.
+- [x] Sem cabeçalho, com `Basic`, com token adulterado, com `alg: none` ou com `aud` errado: 401 `TOKEN_INVALIDO`.
+- [x] Depois do logout ou da revogação da sessão por reuso, o mesmo access token recebe 401 `TOKEN_INVALIDO`.
+- [x] Token vencido (com `Clock` fake): 401 `TOKEN_EXPIRADO`.
+- [x] Não existe forma de obter dados de outro responsável.
+- [x] Dias sem aula vêm com `aulas: []`; `nota` e `faltas` nulos vêm `null`; os arrays seguem a ordem do JSON.
+- [x] `Cache-Control: no-store` presente.

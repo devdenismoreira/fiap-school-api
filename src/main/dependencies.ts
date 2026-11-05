@@ -1,6 +1,9 @@
 import type { Express } from 'express';
 import type { DestinationStream } from 'pino';
+import type { Clock } from '@/domain/ports/Clock';
 import type { Logger } from '@/domain/ports/Logger';
+import { createAuthenticate } from '@/domain/usecases/authenticate';
+import { createGetCurrentGuardian } from '@/domain/usecases/getCurrentGuardian';
 import { createLogin } from '@/domain/usecases/login';
 import { PrismaDatabaseHealthCheck } from '@/infra/database/PrismaDatabaseHealthCheck';
 import { createPrismaClient } from '@/infra/database/prismaClient';
@@ -13,19 +16,23 @@ import { JoseAccessTokenService } from '@/infra/security/JoseAccessTokenService'
 import { SystemClock } from '@/infra/security/SystemClock';
 import { HealthController } from '@/presentation/controllers/HealthController';
 import { LoginController } from '@/presentation/controllers/LoginController';
+import { MeController } from '@/presentation/controllers/MeController';
 import {
   cpfRateLimitKey,
   createCpfRateLimit,
   createIpRateLimit,
 } from '@/presentation/middlewares/rateLimit';
+import { createRequireAuth } from '@/presentation/middlewares/requireAuth';
 import { authRoutes } from '@/presentation/routes/authRoutes';
 import { healthRoutes } from '@/presentation/routes/healthRoutes';
+import { meRoutes } from '@/presentation/routes/meRoutes';
 import { createApp } from './app';
 import type { Env } from './config/env';
 
 const HEALTH_CHECK_TIMEOUT_MILLISECONDS = 3000;
 const LOGIN_IP_LIMIT = { windowMs: 60_000, limit: 20 };
 const LOGIN_CPF_LIMIT = { windowMs: 15 * 60_000, limit: 5 };
+const AUTHENTICATED_IP_LIMIT = { windowMs: 60_000, limit: 120 };
 
 export type Dependencies = Readonly<{
   app: Express;
@@ -35,6 +42,7 @@ export type Dependencies = Readonly<{
 
 export type DependencyOverrides = Readonly<{
   logDestination?: DestinationStream;
+  clock?: Clock;
 }>;
 
 export async function createDependencies(
@@ -43,7 +51,7 @@ export async function createDependencies(
 ): Promise<Dependencies> {
   const logger = createLogger(env.logLevel, overrides.logDestination);
   const prisma = createPrismaClient(env.database, logger);
-  const clock = new SystemClock();
+  const clock = overrides.clock ?? new SystemClock();
   const [passwordHasher, accessTokens] = await Promise.all([
     BcryptPasswordHasher.create(env.auth.bcryptCost),
     JoseAccessTokenService.create(
@@ -72,6 +80,13 @@ export async function createDependencies(
   const loginController = new LoginController(login, logger, cpf =>
     cpfRateLimitKey(cpf, env.auth.cpfHmacSecret),
   );
+  const requireAuth = createRequireAuth(
+    createAuthenticate({ accessTokens, sessions, clock }),
+  );
+  const authenticatedIpLimit = createIpRateLimit(
+    AUTHENTICATED_IP_LIMIT,
+    logger,
+  );
 
   const app = createApp({
     logger,
@@ -98,6 +113,11 @@ export async function createDependencies(
           env.auth.cpfHmacSecret,
           logger,
         ),
+      }),
+      meRoutes({
+        meController: new MeController(createGetCurrentGuardian(guardians)),
+        authenticatedIpLimit,
+        requireAuth,
       }),
     ],
   });

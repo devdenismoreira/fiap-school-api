@@ -28,4 +28,5 @@ export interface SessionRepository {
     reason: SessionRevocationReason,
     now: Date,
   ): Promise<void>;
+  recordUse(sessionId: string, now: Date): Promise<void>;
 }

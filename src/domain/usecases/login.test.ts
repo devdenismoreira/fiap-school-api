@@ -50,6 +50,7 @@ function setup() {
       findByRefreshHash: jest.fn(),
       rotate: jest.fn(),
       revoke: jest.fn(),
+      recordUse: jest.fn(),
     },
     passwordHasher: { verify },
     refreshTokens: {

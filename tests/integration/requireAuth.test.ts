@@ -6,6 +6,7 @@ import { PrismaSessionRepository } from '@/infra/database/repositories/PrismaSes
 import { CryptoRefreshTokenGenerator } from '@/infra/security/CryptoRefreshTokenGenerator';
 import { JoseAccessTokenService } from '@/infra/security/JoseAccessTokenService';
 import { SystemClock } from '@/infra/security/SystemClock';
+import { createAuthenticate } from '@/domain/usecases/authenticate';
 import { loadDatabaseEnv } from '@/main/config/env';
 import { createErrorHandler } from '@/presentation/middlewares/errorHandler';
 import {
@@ -42,7 +43,9 @@ beforeAll(async () => {
   app = express();
   app.get(
     '/protegido',
-    createRequireAuth(accessTokens, sessions),
+    createRequireAuth(
+      createAuthenticate({ accessTokens, sessions, clock: new SystemClock() }),
+    ),
     (_request, response) => {
       response.json(authenticatedContext(response));
     },

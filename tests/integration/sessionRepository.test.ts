@@ -181,3 +181,33 @@ describe('PrismaSessionRepository.revoke', () => {
     ).resolves.toMatchObject({ id: tablet.session.id });
   });
 });
+
+describe('PrismaSessionRepository.recordUse', () => {
+  async function lastUsedAt(sessionId: string) {
+    return (
+      await prisma.session.findUniqueOrThrow({
+        where: { id: sessionId },
+        select: { lastUsedAt: true },
+      })
+    ).lastUsedAt;
+  }
+
+  it('grava o uso quando o último tem 60 s ou mais', async () => {
+    const { session } = await openSession();
+    const later = new Date(session.lastUsedAt.getTime() + 60_000);
+
+    await sessions.recordUse(session.id, later);
+
+    await expect(lastUsedAt(session.id)).resolves.toEqual(later);
+  });
+
+  it('não grava de novo dentro do mesmo minuto, mesmo se chamado (requisições simultâneas)', async () => {
+    const { session } = await openSession();
+    const first = new Date(session.lastUsedAt.getTime() + 60_000);
+    await sessions.recordUse(session.id, first);
+
+    await sessions.recordUse(session.id, new Date(first.getTime() + 30_000));
+
+    await expect(lastUsedAt(session.id)).resolves.toEqual(first);
+  });
+});

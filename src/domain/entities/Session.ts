@@ -9,6 +9,15 @@ export type Session = Readonly<{
   revokedReason: SessionRevocationReason | null;
 }>;
 
+export const SESSION_USE_RECORD_INTERVAL_MS = 60_000;
+
 export function isSessionActive(session: Session): boolean {
   return session.revokedAt === null;
+}
+
+export function shouldRecordSessionUse(session: Session, now: Date): boolean {
+  return (
+    now.getTime() - session.lastUsedAt.getTime() >=
+    SESSION_USE_RECORD_INTERVAL_MS
+  );
 }

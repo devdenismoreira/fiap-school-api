@@ -1,7 +1,8 @@
 import type { RefreshToken } from '@/domain/entities/RefreshToken';
-import type {
-  Session,
-  SessionRevocationReason,
+import {
+  SESSION_USE_RECORD_INTERVAL_MS,
+  type Session,
+  type SessionRevocationReason,
 } from '@/domain/entities/Session';
 import type {
   NewRefreshToken,
@@ -138,6 +139,18 @@ export class PrismaSessionRepository implements SessionRepository {
     await this.prisma.session.updateMany({
       where: { id: sessionId, revokedAt: null },
       data: { revokedAt: now, revokedReason: reason },
+    });
+  }
+
+  async recordUse(sessionId: string, now: Date): Promise<void> {
+    await this.prisma.session.updateMany({
+      where: {
+        id: sessionId,
+        lastUsedAt: {
+          lte: new Date(now.getTime() - SESSION_USE_RECORD_INTERVAL_MS),
+        },
+      },
+      data: { lastUsedAt: now },
     });
   }
 }

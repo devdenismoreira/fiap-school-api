@@ -25,7 +25,7 @@ O MVC organiza a borda HTTP. A Clean Architecture garante que as regras não dep
 | Papel | Responsabilidade | Pasta |
 |---|---|---|
 | **Model** | Entidades (`Guardian`, `Student`, `ScheduleDay`, `Lesson`, `ReportCard`, `Term`, `SubjectGrade`, `Session`, `RefreshToken`) e erros de domínio | `src/domain/entities`, `src/domain/errors` |
-| Casos de uso | `login`, `getCurrentGuardian`, `refreshSession`, `logout`, `getStudentSchedule` e `getStudentReportCards` | `src/domain/usecases` |
+| Casos de uso | `login`, `authenticate`, `getCurrentGuardian`, `refreshSession`, `logout`, `getStudentSchedule` e `getStudentReportCards` | `src/domain/usecases` |
 | Portas | `GuardianRepository`, `SessionRepository`, `PasswordHasher`, `AccessTokenService`, `RefreshTokenGenerator`, `Clock` | `src/domain/repositories`, `src/domain/ports` |
 | **Controller** | Lê a requisição já validada, chama o caso de uso e devolve a view com o status | `src/presentation/controllers` |
 | **View** | Presenter que monta o JSON do contrato campo a campo (`guardianView`, `scheduleView`, `reportCardsView`, `tokensView`, `errorView`) | `src/presentation/views` |

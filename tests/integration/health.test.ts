@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { loadEnv } from '@/main/config/env';
-import { createDependencies, type Dependencies } from '@/main/dependencies';
+import type { Dependencies } from '@/main/dependencies';
+import { createDependencies } from '../support/checkedDependencies';
 
 describe('GET /health com o banco de teste no Supabase', () => {
   let dependencies: Dependencies;

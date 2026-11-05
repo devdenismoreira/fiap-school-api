@@ -20,9 +20,9 @@ Publicar o contrato no Swagger e provar, por teste, que o app pode trocar o data
 
 ## Critérios de aceite
 
-- [ ] O teste de paridade passa para todos os responsáveis da fonte.
-- [ ] Todas as respostas dos testes de integração são válidas contra o `openapi.yaml`.
-- [ ] `/docs` responde em desenvolvimento e 404 em produção.
+- [x] O teste de paridade passa para todos os responsáveis da fonte.
+- [x] Todas as respostas dos testes de integração são válidas contra o `openapi.yaml`.
+- [x] `/docs` responde em desenvolvimento e 404 em produção.
 - [ ] A spec 03 e o `openapi.yaml` dizem a mesma coisa (revisão no `/review`).
 
 ## Validação
@@ -31,4 +31,24 @@ Publicar o contrato no Swagger e provar, por teste, que o app pode trocar o data
 
 ## Status
 
-Não iniciada.
+**Implementada em 2026-11-05.** Falta só a revisão de equivalência entre a spec 03 e o `openapi.yaml`, prevista para o `/review`.
+
+Entregue:
+- **`openapi.yaml` (OpenAPI 3.1):**
+  - os 7 endpoints;
+  - esquemas estritos (`additionalProperties: false`, todas as chaves obrigatórias, `nota` e `faltas` como `number | null`);
+  - respostas de erro reaproveitáveis;
+  - segurança Bearer (JWT);
+  - exemplos fictícios.
+- **`/docs`:** `docsRoutes` serve o Swagger UI e o `openapi.yaml` cru, que o próprio Swagger UI lê no navegador (sem parser de YAML em runtime). Os scripts vêm só da própria origem, compatíveis com o CSP do `helmet`. Só é registrado quando `NODE_ENV !== 'production'`.
+- **Validação das respostas:**
+  - `tests/support/contractChecker.ts` envolve a API nos testes de integração, sem mudar o código da API, e confere toda resposta: status documentado, corpo contra o esquema (Ajv 2020-12) e ausência das chaves `cpf`, `email`, `senha` e `passwordHash` (teste de exposição);
+  - as violações são checadas ao fim de cada arquivo (`setupFilesAfterEnv`);
+  - o próprio verificador tem testes de unidade que provam que ele acusa campo a mais, nota trocada, chave `null` omitida, status não documentado e corpo fora do formato de erro.
+- **Paridade:** `tests/integration/parity.test.ts` (login → `GET /v1/me` → `toStrictEqual` com a fonte sem credenciais, para cada responsável).
+- **Dependências:** `swagger-ui-express` (runtime, D-14); `yaml`, `ajv` e `ajv-formats` (só desenvolvimento).
+
+Validação:
+- `yarn typecheck` e `yarn lint` passando;
+- `yarn test`: 276 testes passando;
+- `yarn test:integration`: 107 testes passando em 12 arquivos, com todas as respostas verificadas contra o `openapi.yaml` e nenhuma violação.

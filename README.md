@@ -15,7 +15,7 @@ API do app [FIAP School Mobile](../FiapSchoolMobile). Ela substitui o JSON local
 | `GET /v1/alunos/{rm}/agenda` e `/boletins` | Dados de um aluno vinculado ao responsável do token; outro RM responde 404 |
 | `GET /health` | Saúde do serviço |
 
-O contrato completo está em [`specs/03-api-contract.md`](specs/03-api-contract.md) e será publicado no Swagger (`/docs`).
+O contrato completo está em [`specs/03-api-contract.md`](specs/03-api-contract.md) e no [`openapi.yaml`](openapi.yaml) (OpenAPI 3.1). Fora de produção, o Swagger fica em `http://localhost:3000/docs`. Os testes de integração conferem cada resposta contra o `openapi.yaml`.
 
 ## Stack
 

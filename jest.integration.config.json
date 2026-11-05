@@ -20,5 +20,8 @@
   "globalSetup": "<rootDir>/tests/integration/globalSetup.ts",
   "testTimeout": 30000,
   "clearMocks": true,
-  "transformIgnorePatterns": ["/node_modules/(?!jose/)"]
+  "transformIgnorePatterns": ["/node_modules/(?!jose/)"],
+  "setupFilesAfterEnv": [
+    "<rootDir>/tests/integration/setup/contractAssertions.ts"
+  ]
 }

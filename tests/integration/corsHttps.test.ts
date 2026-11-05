@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { loadEnv } from '@/main/config/env';
-import { createDependencies, type Dependencies } from '@/main/dependencies';
+import type { Dependencies } from '@/main/dependencies';
+import { createDependencies } from '../support/checkedDependencies';
 
 const ALLOWED_ORIGIN = 'https://admin.exemplo.com';
 const OTHER_ORIGIN = 'https://outro.exemplo.com';

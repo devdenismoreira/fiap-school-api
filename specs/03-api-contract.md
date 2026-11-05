@@ -182,4 +182,4 @@ Regras do cliente (T10):
 
 ## 5. OpenAPI
 
-A T09 gera o `openapi.yaml` (OpenAPI 3.1) desta spec. Ele é servido pelo Swagger (`swagger-ui-express`) em `/docs` quando `NODE_ENV !== 'production'`. Os testes de integração validam as respostas contra o esquema.
+O `openapi.yaml` (OpenAPI 3.1, na raiz do repositório) foi escrito a partir desta spec na T09. Ele é servido pelo Swagger (`swagger-ui-express`) em `/docs` quando `NODE_ENV !== 'production'`. Os testes de integração validam cada resposta contra ele: status documentado, corpo no esquema e ausência de `cpf`, `email`, `senha` e `passwordHash`. Mudou o contrato, atualize esta spec e o `openapi.yaml` juntos.

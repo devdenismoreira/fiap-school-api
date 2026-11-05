@@ -1,4 +1,5 @@
 import type { Express } from 'express';
+import { resolve } from 'node:path';
 import type { DestinationStream } from 'pino';
 import type { Clock } from '@/domain/ports/Clock';
 import type { Logger } from '@/domain/ports/Logger';
@@ -32,6 +33,7 @@ import {
 } from '@/presentation/middlewares/rateLimit';
 import { createRequireAuth } from '@/presentation/middlewares/requireAuth';
 import { authRoutes } from '@/presentation/routes/authRoutes';
+import { docsRoutes } from '@/presentation/routes/docsRoutes';
 import { healthRoutes } from '@/presentation/routes/healthRoutes';
 import { meRoutes } from '@/presentation/routes/meRoutes';
 import { studentRoutes } from '@/presentation/routes/studentRoutes';
@@ -39,6 +41,7 @@ import { createApp } from './app';
 import type { Env } from './config/env';
 
 const HEALTH_CHECK_TIMEOUT_MILLISECONDS = 3000;
+const OPENAPI_PATH = resolve(__dirname, '..', '..', 'openapi.yaml');
 const LOGIN_IP_LIMIT = { windowMs: 60_000, limit: 20 };
 const LOGIN_CPF_LIMIT = { windowMs: 15 * 60_000, limit: 5 };
 const AUTHENTICATED_IP_LIMIT = { windowMs: 60_000, limit: 120 };
@@ -151,6 +154,7 @@ export async function createDependencies(
         authenticatedIpLimit,
         requireAuth,
       }),
+      ...(env.nodeEnv === 'production' ? [] : [docsRoutes(OPENAPI_PATH)]),
     ],
   });
 

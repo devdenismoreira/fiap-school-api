@@ -3,7 +3,8 @@ import request from 'supertest';
 import { createPrismaClient } from '@/infra/database/prismaClient';
 import { PrismaSessionRepository } from '@/infra/database/repositories/PrismaSessionRepository';
 import { loadDatabaseEnv, loadEnv } from '@/main/config/env';
-import { createDependencies, type Dependencies } from '@/main/dependencies';
+import type { Dependencies } from '@/main/dependencies';
+import { createDependencies } from '../support/checkedDependencies';
 import {
   loadSourceForTests,
   withoutCredentials,

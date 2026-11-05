@@ -1,0 +1,467 @@
+openapi: 3.1.0
+info:
+  title: FIAP School API
+  version: 1.0.0
+  description: |
+    API do app FIAP School Mobile. Contrato gerado da spec 03 (specs/03-api-contract.md).
+
+    - Toda resposta de /v1 leva `Cache-Control: no-store`.
+    - Em produção, requisições sem TLS recebem 403 `HTTPS_OBRIGATORIO` (exceto /health).
+    - Os arrays seguem a ordem de exibição do app; `nota` e `faltas` nulos significam "não lançado".
+    - Nenhuma resposta contém `cpf`, `email` ou `senha`.
+servers:
+  - url: http://localhost:3000
+    description: Desenvolvimento
+tags:
+  - name: Saúde
+  - name: Autenticação
+  - name: Responsável
+  - name: Alunos
+
+paths:
+  /health:
+    get:
+      tags: [Saúde]
+      summary: Verificação de saúde (banco acessível)
+      operationId: health
+      security: []
+      responses:
+        '200':
+          description: API e banco disponíveis.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Saude' }
+              example: { status: ok }
+        '503':
+          description: Banco indisponível.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Saude' }
+              example: { status: indisponivel }
+
+  /v1/auth/login:
+    post:
+      tags: [Autenticação]
+      summary: Login por CPF e senha; abre uma sessão
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequisicao' }
+            example: { cpf: '00000000000', senha: senha-ficticia }
+      responses:
+        '200':
+          description: Credenciais corretas. Tokens e o responsável completo.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResposta' }
+        '400': { $ref: '#/components/responses/DadosInvalidos' }
+        '401':
+          description: CPF inexistente, dígito verificador inválido ou senha errada. Sempre a mesma resposta.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Erro' }
+              example:
+                erro:
+                  {
+                    codigo: CREDENCIAIS_INVALIDAS,
+                    mensagem: Usuário ou senha inválida.,
+                  }
+        '403': { $ref: '#/components/responses/HttpsObrigatorio' }
+        '429': { $ref: '#/components/responses/MuitasTentativas' }
+        '500': { $ref: '#/components/responses/ErroInterno' }
+
+  /v1/auth/refresh:
+    post:
+      tags: [Autenticação]
+      summary: Renova a sessão com rotação do refresh token
+      operationId: refresh
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshRequisicao' }
+      responses:
+        '200':
+          description: Par novo. O refresh usado deixa de valer.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Tokens' }
+        '400': { $ref: '#/components/responses/DadosInvalidos' }
+        '401':
+          description: Refresh desconhecido, vencido, de sessão revogada ou já usado. O reuso revoga a sessão inteira.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Erro' }
+              example:
+                erro:
+                  {
+                    codigo: REFRESH_INVALIDO,
+                    mensagem: Sessão inválida ou expirada.,
+                  }
+        '403': { $ref: '#/components/responses/HttpsObrigatorio' }
+        '429': { $ref: '#/components/responses/MuitasTentativas' }
+        '500': { $ref: '#/components/responses/ErroInterno' }
+
+  /v1/auth/logout:
+    post:
+      tags: [Autenticação]
+      summary: Revoga a sessão do refresh token (idempotente)
+      operationId: logout
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshRequisicao' }
+      responses:
+        '204':
+          description: Sessão revogada, ou token desconhecido ou já revogado. Não revela qual.
+        '400': { $ref: '#/components/responses/DadosInvalidos' }
+        '403': { $ref: '#/components/responses/HttpsObrigatorio' }
+        '429': { $ref: '#/components/responses/MuitasTentativas' }
+        '500': { $ref: '#/components/responses/ErroInterno' }
+
+  /v1/me:
+    get:
+      tags: [Responsável]
+      summary: Responsável do access token (restaurar a sessão)
+      operationId: me
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: O responsável, no mesmo formato do login.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Responsavel' }
+        '401': { $ref: '#/components/responses/NaoAutenticado' }
+        '403': { $ref: '#/components/responses/HttpsObrigatorio' }
+        '429': { $ref: '#/components/responses/MuitasTentativas' }
+        '500': { $ref: '#/components/responses/ErroInterno' }
+
+  /v1/alunos/{rm}/agenda:
+    get:
+      tags: [Alunos]
+      summary: Agenda de um aluno vinculado ao responsável do token
+      operationId: studentSchedule
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Rm'
+      responses:
+        '200':
+          description: A agenda do aluno (D-27).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AgendaResposta' }
+        '400': { $ref: '#/components/responses/DadosInvalidos' }
+        '401': { $ref: '#/components/responses/NaoAutenticado' }
+        '403': { $ref: '#/components/responses/HttpsObrigatorio' }
+        '404': { $ref: '#/components/responses/AlunoNaoEncontrado' }
+        '429': { $ref: '#/components/responses/MuitasTentativas' }
+        '500': { $ref: '#/components/responses/ErroInterno' }
+
+  /v1/alunos/{rm}/boletins:
+    get:
+      tags: [Alunos]
+      summary: Boletins de um aluno vinculado ao responsável do token
+      operationId: studentReportCards
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Rm'
+      responses:
+        '200':
+          description: Os boletins do aluno (D-27).
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/BoletinsResposta' }
+        '400': { $ref: '#/components/responses/DadosInvalidos' }
+        '401': { $ref: '#/components/responses/NaoAutenticado' }
+        '403': { $ref: '#/components/responses/HttpsObrigatorio' }
+        '404': { $ref: '#/components/responses/AlunoNaoEncontrado' }
+        '429': { $ref: '#/components/responses/MuitasTentativas' }
+        '500': { $ref: '#/components/responses/ErroInterno' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Access token ES256 de 15 minutos, com `sub` (responsável) e `sid` (sessão).
+
+  parameters:
+    Rm:
+      name: rm
+      in: path
+      required: true
+      description: RM do aluno. Inteiro positivo de 1 a 9 dígitos, sem zero à esquerda.
+      schema:
+        type: string
+        pattern: '^[1-9]\d{0,8}$'
+      example: '900001'
+
+  headers:
+    RetryAfter:
+      description: Segundos até a próxima tentativa.
+      schema: { type: integer, minimum: 1 }
+
+  responses:
+    DadosInvalidos:
+      description: Corpo ou parâmetro ausente, malformado, com tipos errados ou acima de 10 KB.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+          example:
+            erro: { codigo: DADOS_INVALIDOS, mensagem: Dados inválidos. }
+    NaoAutenticado:
+      description: Sem Bearer, token inválido (`TOKEN_INVALIDO`, inclusive sessão revogada) ou vencido (`TOKEN_EXPIRADO`).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+          example:
+            erro:
+              { codigo: TOKEN_EXPIRADO, mensagem: Token de acesso expirado. }
+    HttpsObrigatorio:
+      description: Requisição sem TLS em produção.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+          example:
+            erro: { codigo: HTTPS_OBRIGATORIO, mensagem: HTTPS obrigatório. }
+    AlunoNaoEncontrado:
+      description: RM inexistente ou de aluno não vinculado. Mesma resposta nos dois casos (D-22).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+          example:
+            erro:
+              { codigo: ALUNO_NAO_ENCONTRADO, mensagem: Aluno não encontrado. }
+    MuitasTentativas:
+      description: Limite de tentativas atingido.
+      headers:
+        Retry-After: { $ref: '#/components/headers/RetryAfter' }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+          example:
+            erro:
+              {
+                codigo: MUITAS_TENTATIVAS,
+                mensagem: Muitas tentativas. Tente novamente mais tarde.,
+              }
+    ErroInterno:
+      description: Erro inesperado, sem detalhes.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Erro' }
+          example:
+            erro: { codigo: ERRO_INTERNO, mensagem: Erro interno. }
+
+  schemas:
+    Saude:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status: { type: string, enum: [ok, indisponivel] }
+
+    Erro:
+      type: object
+      additionalProperties: false
+      required: [erro]
+      properties:
+        erro:
+          type: object
+          additionalProperties: false
+          required: [codigo, mensagem]
+          properties:
+            codigo:
+              type: string
+              enum:
+                - DADOS_INVALIDOS
+                - CREDENCIAIS_INVALIDAS
+                - TOKEN_INVALIDO
+                - TOKEN_EXPIRADO
+                - REFRESH_INVALIDO
+                - HTTPS_OBRIGATORIO
+                - ALUNO_NAO_ENCONTRADO
+                - NAO_ENCONTRADO
+                - MUITAS_TENTATIVAS
+                - ERRO_INTERNO
+            mensagem: { type: string }
+
+    LoginRequisicao:
+      type: object
+      required: [cpf, senha]
+      properties:
+        cpf:
+          type: string
+          pattern: '^\d{11}$'
+          description: Só os 11 dígitos, sem máscara.
+        senha:
+          type: string
+          minLength: 1
+          maxLength: 72
+          description: De 1 a 72 bytes em UTF-8 (limite do bcrypt). Comparada como veio, sem trim.
+
+    RefreshRequisicao:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+          pattern: '^[A-Za-z0-9_-]{32,128}$'
+          description: Refresh opaco (base64url), recebido no login ou no último refresh.
+
+    Tokens:
+      type: object
+      additionalProperties: false
+      required:
+        [accessToken, tokenType, expiresIn, refreshToken, refreshExpiresIn]
+      properties:
+        accessToken: { type: string, description: JWT ES256. }
+        tokenType: { type: string, const: Bearer }
+        expiresIn:
+          {
+            type: integer,
+            minimum: 1,
+            description: Validade do access em segundos.,
+          }
+        refreshToken: { type: string, pattern: '^[A-Za-z0-9_-]{43}$' }
+        refreshExpiresIn:
+          {
+            type: integer,
+            minimum: 1,
+            description: Validade do refresh em segundos.,
+          }
+
+    LoginResposta:
+      type: object
+      additionalProperties: false
+      required:
+        [
+          accessToken,
+          tokenType,
+          expiresIn,
+          refreshToken,
+          refreshExpiresIn,
+          responsavel,
+        ]
+      properties:
+        accessToken: { type: string }
+        tokenType: { type: string, const: Bearer }
+        expiresIn: { type: integer, minimum: 1 }
+        refreshToken: { type: string, pattern: '^[A-Za-z0-9_-]{43}$' }
+        refreshExpiresIn: { type: integer, minimum: 1 }
+        responsavel: { $ref: '#/components/schemas/Responsavel' }
+
+    Responsavel:
+      type: object
+      description: Exatamente o ResponsavelDTO do app, sem cpf, email ou senha.
+      additionalProperties: false
+      required: [id, primeiroNome, sobrenome, alunos]
+      properties:
+        id: { type: integer, minimum: 1 }
+        primeiroNome: { type: string }
+        sobrenome: { type: string }
+        alunos:
+          type: array
+          items: { $ref: '#/components/schemas/Aluno' }
+
+    Aluno:
+      type: object
+      additionalProperties: false
+      required: [rm, turma, periodo, primeiroNome, sobrenome, agenda, boletim]
+      properties:
+        rm: { type: integer, minimum: 1 }
+        turma: { type: string, examples: ['7EF'] }
+        periodo: { type: string, examples: [Matutino] }
+        primeiroNome: { type: string }
+        sobrenome: { type: string }
+        agenda:
+          type: array
+          items: { $ref: '#/components/schemas/DiaAgenda' }
+        boletim:
+          type: array
+          items: { $ref: '#/components/schemas/Boletim' }
+
+    DiaAgenda:
+      type: object
+      additionalProperties: false
+      required: [dia, aulas]
+      properties:
+        dia: { type: string, format: date, examples: ['2025-03-16'] }
+        aulas:
+          type: array
+          description: Vazio nos dias sem aula.
+          items: { $ref: '#/components/schemas/Aula' }
+
+    Aula:
+      type: object
+      additionalProperties: false
+      required: [horario, disciplina]
+      properties:
+        horario:
+          type: string
+          pattern: '^\d{2}:\d{2} - \d{2}:\d{2}$'
+          examples: ['07:30 - 08:15']
+        disciplina: { type: string }
+
+    Boletim:
+      type: object
+      additionalProperties: false
+      required: [ano, turma, trimestres]
+      properties:
+        ano: { type: string, pattern: '^\d{4}$', examples: ['2025'] }
+        turma: { type: string, description: A turma daquele ano. }
+        trimestres:
+          type: array
+          items: { $ref: '#/components/schemas/Trimestre' }
+
+    Trimestre:
+      type: object
+      additionalProperties: false
+      required: [trimestre, disciplinas]
+      properties:
+        trimestre: { type: integer, minimum: 1 }
+        disciplinas:
+          type: array
+          items: { $ref: '#/components/schemas/Disciplina' }
+
+    Disciplina:
+      type: object
+      additionalProperties: false
+      required: [nome, nota, faltas]
+      properties:
+        nome: { type: string }
+        nota:
+          type: [number, 'null']
+          description: Nota com até uma casa decimal. null = não lançada.
+        faltas:
+          type: [integer, 'null']
+          minimum: 0
+          description: null = não lançadas.
+
+    AgendaResposta:
+      type: object
+      additionalProperties: false
+      required: [agenda]
+      properties:
+        agenda:
+          type: array
+          items: { $ref: '#/components/schemas/DiaAgenda' }
+
+    BoletinsResposta:
+      type: object
+      additionalProperties: false
+      required: [boletins]
+      properties:
+        boletins:
+          type: array
+          items: { $ref: '#/components/schemas/Boletim' }

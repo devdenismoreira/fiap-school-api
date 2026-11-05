@@ -98,10 +98,24 @@ O `.env` e o `.env.test` ficam fora do git. A API não sobe sem as variáveis ob
 | `yarn format` | Formata o código com Prettier |
 | `yarn test` | Testes de unidade, sem banco e sem rede |
 | `yarn test:integration` | Testes HTTP no schema `fiap_school_test` do Supabase; exige internet e o projeto ativo |
-| `yarn prisma:migrate` | Cria e aplica migrations no schema do `.env` (altera o banco) |
-| `yarn db:seed` | Popula o banco com o JSON do app (T02) |
+| `yarn prisma:migrate` | Aplica as migrations pendentes no schema do `.env` (altera o banco) |
+| `yarn db:seed` | Apaga e regrava os dados do JSON do app no schema do `.env`; mostra só o destino e as contagens |
 
-Os testes de integração abortam se o `.env.test` não existir ou se `DATABASE_URL` ou `DIRECT_URL` apontarem para um schema que não termine em `_test`. O `.env.test` prevalece sobre variáveis já definidas no terminal.
+Na primeira vez, depois de configurar o `.env`: `yarn prisma:migrate && yarn db:seed`.
+
+Os testes de integração abortam se o `.env.test` não existir ou se `DATABASE_URL` ou `DIRECT_URL` apontarem para um schema que não termine em `_test`. O `.env.test` prevalece sobre variáveis já definidas no terminal. Depois da trava, o setup aplica as migrations e roda o seed no schema de teste.
+
+### Novas migrations
+
+O `prisma migrate dev` precisa de um banco-sombra, que o pooler do Supabase não oferece. Para uma nova migration, gere o SQL comparando o schema de desenvolvimento com o `schema.prisma`, revise e aplique:
+
+```bash
+mkdir prisma/migrations/AAAAMMDDHHMMSS_nome
+npx prisma migrate diff --from-config-datasource --to-schema prisma/schema.prisma --script > prisma/migrations/AAAAMMDDHHMMSS_nome/migration.sql
+yarn prisma:migrate
+```
+
+Tabelas novas precisam de `ALTER TABLE … ENABLE ROW LEVEL SECURITY` no SQL (D-20).
 
 ## Próximos passos
 

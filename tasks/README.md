@@ -5,7 +5,7 @@ Cada tarefa tem escopo, dependências, critérios de aceite e estratégia de val
 | # | Tarefa | Depende de | Entrega principal |
 |---|---|---|---|
 | T01 | [Fundação](T01-fundacao.md) ✅ | aprovação das specs e projeto no Supabase | Node + TS + Express 5 + Prisma; Supabase com os schemas de desenvolvimento e de teste; trava dos testes; `/health`; lint, Jest e env validado |
-| T02 | [Dados e seed](T02-dados-e-seed.md) | T01 | Esquema Prisma (schema `fiap_school`, RLS), migrations, repositório do agregado, seed |
+| T02 | [Dados e seed](T02-dados-e-seed.md) ✅ | T01 | Esquema Prisma (schema `fiap_school`, RLS), migrations, repositório do agregado, seed |
 | T03 | [Base de segurança](T03-base-de-seguranca.md) | T01 | bcrypt, JWT, sessões, erros, logs, `helmet`, limite de tentativas |
 | T04 | [CORS e HTTPS](T04-cors-e-https.md) | T01 | `cors` por lista, `requireHttps`, HSTS, `trust proxy`, HTTPS local, TLS com o Supabase |
 | T05 | [Login](T05-login.md) | T02, T03 | `POST /v1/auth/login`, que abre a sessão |

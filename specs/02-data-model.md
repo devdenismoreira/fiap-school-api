@@ -27,11 +27,11 @@ responsaveis 1─N sessoes 1─N refresh_tokens
 
 Os modelos têm nomes em inglês, como no domínio. As tabelas e colunas usam português `snake_case`. As tabelas ficam no schema `fiap_school`, escolhido pela URL de conexão (`?schema=fiap_school`), fora da Data API do Supabase (D-20).
 
+No Prisma 7, a `datasource` não tem `url` nem `directUrl`: o CLI lê a `DIRECT_URL` no `prisma.config.ts`, e o cliente recebe a `DATABASE_URL` pelo adapter `pg` (D-24). A primeira migration é `prisma/migrations/20261105000000_init`, gerada com `prisma migrate diff` e sem schema fixo no SQL, para servir aos schemas `fiap_school` e `fiap_school_test`.
+
 ```prisma
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
 }
 
 model Guardian {

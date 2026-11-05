@@ -47,23 +47,86 @@ function positiveInteger(fallback: number) {
   return z.coerce.number().int().positive().default(fallback);
 }
 
+const optionalText = z.preprocess(
+  value => (value === '' ? undefined : value),
+  z.string().min(1).optional(),
+);
+
+function isExactOrigin(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return (
+      (url.protocol === 'https:' || url.protocol === 'http:') &&
+      url.origin === value
+    );
+  } catch {
+    return false;
+  }
+}
+
+const corsOriginsSchema = z
+  .string()
+  .optional()
+  .transform((value, context) => {
+    const origins = (value ?? '')
+      .split(',')
+      .map(origin => origin.trim())
+      .filter(origin => origin !== '');
+    if (origins.some(origin => !isExactOrigin(origin))) {
+      context.addIssue({
+        code: 'custom',
+        message:
+          'deve listar origens exatas (esquema, host e porta), sem curinga nem caminho',
+      });
+      return z.NEVER;
+    }
+    return origins;
+  });
+
 const databaseEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']),
   DATABASE_URL: databaseUrlSchema,
 });
 
-const envSchema = databaseEnvSchema.extend({
-  PORT: z.coerce.number().int().min(1).max(65535).default(3000),
-  LOG_LEVEL: z.enum(LOG_LEVELS).default('info'),
-  JWT_PRIVATE_KEY: pemSchema('PRIVATE KEY'),
-  JWT_PUBLIC_KEY: pemSchema('PUBLIC KEY'),
-  JWT_ISSUER: z.string().min(1).default('fiap-school-api'),
-  JWT_AUDIENCE: z.string().min(1).default('fiap-school-mobile'),
-  ACCESS_TOKEN_TTL_SECONDS: positiveInteger(900),
-  REFRESH_TOKEN_TTL_SECONDS: positiveInteger(2_592_000),
-  BCRYPT_COST: z.coerce.number().int().min(12).default(12),
-  CPF_HMAC_SECRET: z.string().min(32),
-});
+const envSchema = databaseEnvSchema
+  .extend({
+    PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+    LOG_LEVEL: z.enum(LOG_LEVELS).default('info'),
+    JWT_PRIVATE_KEY: pemSchema('PRIVATE KEY'),
+    JWT_PUBLIC_KEY: pemSchema('PUBLIC KEY'),
+    JWT_ISSUER: z.string().min(1).default('fiap-school-api'),
+    JWT_AUDIENCE: z.string().min(1).default('fiap-school-mobile'),
+    ACCESS_TOKEN_TTL_SECONDS: positiveInteger(900),
+    REFRESH_TOKEN_TTL_SECONDS: positiveInteger(2_592_000),
+    BCRYPT_COST: z.coerce.number().int().min(12).default(12),
+    CPF_HMAC_SECRET: z.string().min(32),
+    CORS_ORIGINS: corsOriginsSchema,
+    TRUST_PROXY: z.coerce.number().int().min(0).default(0),
+    HTTPS_KEY_PATH: optionalText,
+    HTTPS_CERT_PATH: optionalText,
+  })
+  .superRefine((data, context) => {
+    if (
+      data.NODE_ENV === 'production' &&
+      data.CORS_ORIGINS.some(origin => !origin.startsWith('https://'))
+    ) {
+      context.addIssue({
+        code: 'custom',
+        path: ['CORS_ORIGINS'],
+        message: 'só aceita origens https:// em produção',
+      });
+    }
+    if (
+      (data.HTTPS_KEY_PATH === undefined) !==
+      (data.HTTPS_CERT_PATH === undefined)
+    ) {
+      context.addIssue({
+        code: 'custom',
+        path: ['HTTPS_KEY_PATH'],
+        message: 'e HTTPS_CERT_PATH devem ser informados juntos',
+      });
+    }
+  });
 
 export type LogLevel = (typeof LOG_LEVELS)[number];
 
@@ -83,11 +146,18 @@ export type AuthEnv = Readonly<{
   cpfHmacSecret: string;
 }>;
 
+export type HttpEnv = Readonly<{
+  corsOrigins: readonly string[];
+  trustProxy: number;
+  tls: Readonly<{ keyPath: string; certPath: string }> | null;
+}>;
+
 export type Env = DatabaseEnv &
   Readonly<{
     port: number;
     logLevel: LogLevel;
     auth: AuthEnv;
+    http: HttpEnv;
   }>;
 
 function describeIssue(issue: z.core.$ZodIssue): string {
@@ -137,6 +207,14 @@ export function loadEnv(source: NodeJS.ProcessEnv): Env {
       refreshTokenTtlSeconds: data.REFRESH_TOKEN_TTL_SECONDS,
       bcryptCost: data.BCRYPT_COST,
       cpfHmacSecret: data.CPF_HMAC_SECRET,
+    },
+    http: {
+      corsOrigins: data.CORS_ORIGINS,
+      trustProxy: data.TRUST_PROXY,
+      tls:
+        data.HTTPS_KEY_PATH && data.HTTPS_CERT_PATH
+          ? { keyPath: data.HTTPS_KEY_PATH, certPath: data.HTTPS_CERT_PATH }
+          : null,
     },
   };
 }

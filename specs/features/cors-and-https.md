@@ -74,13 +74,13 @@ Não agora (D-23). Uma renovação ou troca de certificado na hospedagem travari
 
 ## 5. Critérios de aceite
 
-- [ ] Origem da lista recebe `Access-Control-Allow-Origin` com a própria origem e `Vary: Origin`.
-- [ ] Origem fora da lista não recebe cabeçalhos CORS, e o seu preflight responde 403.
-- [ ] Requisição sem `Origin` funciona normalmente em todas as rotas.
-- [ ] Preflight de origem permitida responde 204 com os métodos e cabeçalhos da regra 6, sem contar no limite de tentativas.
-- [ ] O `env.ts` recusa `*` sempre e recusa `http://` em `CORS_ORIGINS` quando `NODE_ENV=production`.
-- [ ] Em produção, requisição sem TLS (`X-Forwarded-Proto: http` atrás do proxy de confiança) recebe 403 `HTTPS_OBRIGATORIO`, exceto `/health`.
-- [ ] Em produção, as respostas trazem `Strict-Transport-Security`.
-- [ ] Com `TRUST_PROXY` correto, `req.ip` é o IP do cliente (o limite por IP usa o IP real).
-- [ ] Com `HTTPS_KEY_PATH` e `HTTPS_CERT_PATH`, a API sobe em HTTPS localmente.
+- [x] Origem da lista recebe `Access-Control-Allow-Origin` com a própria origem e `Vary: Origin`.
+- [x] Origem fora da lista não recebe cabeçalhos CORS, e o seu preflight responde 403.
+- [x] Requisição sem `Origin` funciona normalmente em todas as rotas.
+- [x] Preflight de origem permitida responde 204 com os métodos e cabeçalhos da regra 6, sem contar no limite de tentativas.
+- [x] O `env.ts` recusa `*` sempre e recusa `http://` em `CORS_ORIGINS` quando `NODE_ENV=production`.
+- [x] Em produção, requisição sem TLS (`X-Forwarded-Proto: http` atrás do proxy de confiança) recebe 403 `HTTPS_OBRIGATORIO`, exceto `/health`.
+- [x] Em produção, as respostas trazem `Strict-Transport-Security`.
+- [x] Com `TRUST_PROXY` correto, `req.ip` é o IP do cliente (o limite por IP usa o IP real).
+- [x] Com `HTTPS_KEY_PATH` e `HTTPS_CERT_PATH`, a API sobe em HTTPS localmente.
 - [x] A `DATABASE_URL` exige `sslmode=verify-full`, e o `env.ts` recusa qualquer outro modo em todos os ambientes (T01, D-26).

@@ -76,6 +76,11 @@ export async function createDependencies(
   const app = createApp({
     logger,
     requestLogger: createHttpLogger(logger),
+    security: {
+      trustProxy: env.http.trustProxy,
+      enforceHttps: env.nodeEnv === 'production',
+      corsOrigins: env.http.corsOrigins,
+    },
     routers: [
       healthRoutes(
         new HealthController(

@@ -49,6 +49,7 @@ describe('loadEnv', () => {
         bcryptCost: 12,
         cpfHmacSecret: CPF_HMAC_SECRET,
       },
+      http: { corsOrigins: [], trustProxy: 0, tls: null },
     });
   });
 
@@ -191,6 +192,99 @@ describe('loadEnv', () => {
     expect(message).toContain('PORT');
     expect(message).toContain('DATABASE_URL');
     expect(message).toContain('JWT_PRIVATE_KEY');
+  });
+});
+
+describe('loadEnv: CORS, proxy e HTTPS local', () => {
+  it('lê CORS_ORIGINS como lista de origens exatas', () => {
+    const env = loadEnv(
+      validSource({
+        CORS_ORIGINS: 'https://admin.exemplo.com, http://localhost:5173',
+      }),
+    );
+
+    expect(env.http.corsOrigins).toEqual([
+      'https://admin.exemplo.com',
+      'http://localhost:5173',
+    ]);
+  });
+
+  it('trata CORS_ORIGINS vazio como nenhuma origem', () => {
+    expect(loadEnv(validSource({ CORS_ORIGINS: '' })).http.corsOrigins).toEqual(
+      [],
+    );
+  });
+
+  it.each([
+    ['curinga', '*'],
+    ['curinga junto com origem', 'https://admin.exemplo.com,*'],
+    ['origem com caminho', 'https://admin.exemplo.com/painel'],
+    ['origem com barra no fim', 'https://admin.exemplo.com/'],
+    ['texto que não é URL', 'admin.exemplo.com'],
+    ['outro esquema', 'ftp://admin.exemplo.com'],
+  ])('recusa CORS_ORIGINS com %s, sempre', (_caso, origins) => {
+    expect(() => loadEnv(validSource({ CORS_ORIGINS: origins }))).toThrow(
+      'CORS_ORIGINS deve listar origens exatas',
+    );
+  });
+
+  it('recusa origem http:// em produção', () => {
+    expect(() =>
+      loadEnv(
+        validSource({
+          NODE_ENV: 'production',
+          CORS_ORIGINS: 'http://admin.exemplo.com',
+        }),
+      ),
+    ).toThrow('CORS_ORIGINS só aceita origens https:// em produção');
+  });
+
+  it('aceita origem https:// em produção', () => {
+    expect(
+      loadEnv(
+        validSource({
+          NODE_ENV: 'production',
+          CORS_ORIGINS: 'https://admin.exemplo.com',
+        }),
+      ).http.corsOrigins,
+    ).toEqual(['https://admin.exemplo.com']);
+  });
+
+  it('lê TRUST_PROXY como número de proxies', () => {
+    expect(loadEnv(validSource({ TRUST_PROXY: '1' })).http.trustProxy).toBe(1);
+  });
+
+  it.each(['-1', '1.5', 'true'])('recusa TRUST_PROXY=%s', value => {
+    expect(() => loadEnv(validSource({ TRUST_PROXY: value }))).toThrow(
+      'TRUST_PROXY ausente ou inválida',
+    );
+  });
+
+  it('lê os caminhos do HTTPS local quando os dois estão definidos', () => {
+    expect(
+      loadEnv(
+        validSource({
+          HTTPS_KEY_PATH: 'certs/localhost-key.pem',
+          HTTPS_CERT_PATH: 'certs/localhost.pem',
+        }),
+      ).http.tls,
+    ).toEqual({
+      keyPath: 'certs/localhost-key.pem',
+      certPath: 'certs/localhost.pem',
+    });
+  });
+
+  it('trata os caminhos vazios do .env como HTTPS local desligado', () => {
+    expect(
+      loadEnv(validSource({ HTTPS_KEY_PATH: '', HTTPS_CERT_PATH: '' })).http
+        .tls,
+    ).toBeNull();
+  });
+
+  it('recusa só um dos caminhos do HTTPS local', () => {
+    expect(() =>
+      loadEnv(validSource({ HTTPS_KEY_PATH: 'certs/localhost-key.pem' })),
+    ).toThrow('HTTPS_KEY_PATH e HTTPS_CERT_PATH devem ser informados juntos');
   });
 });
 

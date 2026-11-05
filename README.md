@@ -107,6 +107,21 @@ Na primeira vez, depois de configurar o `.env`: `yarn prisma:migrate && yarn db:
 
 Os testes de integração abortam se o `.env.test` não existir ou se `DATABASE_URL` ou `DIRECT_URL` apontarem para um schema que não termine em `_test`. O `.env.test` prevalece sobre variáveis já definidas no terminal. Depois da trava, o setup aplica as migrations e roda o seed no schema de teste.
 
+### HTTPS, CORS e testes no celular
+
+- **Produção:** o TLS termina na borda da hospedagem (T11). A API confia no número de proxies informado em `TRUST_PROXY`, responde 403 `HTTPS_OBRIGATORIO` a requisições HTTP (exceto `/health`) e envia HSTS de 1 ano. Em desenvolvimento, nada disso é aplicado.
+- **CORS:** `CORS_ORIGINS` fica vazio, porque não há cliente web. O app nativo não envia `Origin` e não é afetado. Se surgir um cliente web, liste as origens exatas, separadas por vírgula, só `https://` em produção.
+- **Simulador iOS:** `http://localhost:3000`. **Emulador Android:** `http://10.0.2.2:3000`.
+- **Aparelho físico:** use um túnel HTTPS, que dá uma URL pública com certificado válido, sem exceções no app: `cloudflared tunnel --url http://localhost:3000` ou `ngrok http 3000`.
+- **HTTPS local (opcional):** com o [`mkcert`](https://github.com/FiloSottile/mkcert), gere um certificado fora do git e aponte as variáveis para ele:
+
+  ```bash
+  mkcert -install
+  mkdir -p certs/local && mkcert -key-file certs/local/localhost-key.pem -cert-file certs/local/localhost.pem localhost 127.0.0.1
+  ```
+
+  No `.env`: `HTTPS_KEY_PATH=certs/local/localhost-key.pem` e `HTTPS_CERT_PATH=certs/local/localhost.pem`. A API sobe em `https://localhost:3000`. Os arquivos `.pem` são ignorados pelo git. Para usar no aparelho, instale a CA do `mkcert` nele; o túnel é mais simples.
+
 ### Novas migrations
 
 O `prisma migrate dev` precisa de um banco-sombra, que o pooler do Supabase não oferece. Para uma nova migration, gere o SQL comparando o schema de desenvolvimento com o `schema.prisma`, revise e aplique:

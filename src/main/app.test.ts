@@ -1,9 +1,18 @@
 import request from 'supertest';
 import { HealthController } from '@/presentation/controllers/HealthController';
 import { healthRoutes } from '@/presentation/routes/healthRoutes';
-import { createApp } from './app';
+import { createApp, type AppSecurity } from './app';
 
-function buildApp(isAvailable: () => Promise<boolean>) {
+const DEVELOPMENT: AppSecurity = {
+  trustProxy: 0,
+  enforceHttps: false,
+  corsOrigins: [],
+};
+
+function buildApp(
+  isAvailable: () => Promise<boolean>,
+  security: AppSecurity = DEVELOPMENT,
+) {
   const logger = { info: jest.fn(), error: jest.fn() };
   const requestLogger = jest.fn<void, [unknown, unknown, () => void]>(
     (_request, _response, next) => next(),
@@ -12,9 +21,36 @@ function buildApp(isAvailable: () => Promise<boolean>) {
     logger,
     requestLogger,
     routers: [healthRoutes(new HealthController({ isAvailable }))],
+    security,
   });
   return { app, logger, requestLogger };
 }
+
+describe('HSTS', () => {
+  it('não envia Strict-Transport-Security fora de produção', async () => {
+    const { app } = buildApp(() => Promise.resolve(true));
+
+    const response = await request(app).get('/health');
+
+    expect(response.headers['strict-transport-security']).toBeUndefined();
+  });
+
+  it('envia HSTS de 1 ano com includeSubDomains em produção, sem preload', async () => {
+    const { app } = buildApp(() => Promise.resolve(true), {
+      trustProxy: 1,
+      enforceHttps: true,
+      corsOrigins: [],
+    });
+
+    const response = await request(app)
+      .get('/health')
+      .set('X-Forwarded-Proto', 'https');
+
+    expect(response.headers['strict-transport-security']).toBe(
+      'max-age=31536000; includeSubDomains',
+    );
+  });
+});
 
 describe('registro das requisições', () => {
   it('passa toda requisição pelo logger HTTP', async () => {

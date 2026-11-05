@@ -42,8 +42,10 @@ Os detalhes estão na spec 04 §3.
 | Camada | Item |
 |---|---|
 | Domain | Casos de uso `refreshSession(token)` e `logout(token)`; entidades `Session` (ativa ou revogada) e `RefreshToken` (expirado ou usado); porta `SessionRepository` (`findByRefreshHash`, `rotate`, `revoke`); erro `InvalidRefreshTokenError` |
+
+Ordem das verificações no refresh (T07): token desconhecido ou de sessão revogada → 401; já usado → reuso, que revoga a sessão; vencido → 401 sem revogar; `rotate` que não marca o token (outra requisição girou antes) → também reuso. Os eventos `refresh_reutilizado` e `sessao_revogada` são registrados só com o `sessao_id`.
 | Infra | `PrismaSessionRepository`, com `rotate` em `$transaction` |
-| Presentation | `authRoutes`, `refreshSchema`, `RefreshController`, `LogoutController`, `tokensView`, `noStore` |
+| Presentation | `authRoutes` (limite de 30 por minuto por IP, compartilhado por refresh e logout), `refreshSchema` (base64url, 32 a 128 caracteres), `SessionController` (`refresh` → 200 com `tokensView`; `end` → 204), `tokensView`; o `no-store` vale para todo `/v1` |
 
 ## 5. Comportamento esperado do app
 
@@ -55,11 +57,11 @@ Detalhado na T10, no repositório do app:
 
 ## 6. Critérios de aceite
 
-- [ ] Refresh válido devolve um par novo, e o refresh antigo passa a responder 401 (rotação).
-- [ ] Reusar um refresh já usado revoga a sessão: o refresh e o access emitidos depois dele também passam a receber 401.
-- [ ] Refresh expirado (com `Clock` fake) responde 401 `REFRESH_INVALIDO`.
-- [ ] A rotação é atômica: falha no meio não deixa dois tokens válidos.
-- [ ] Logout revoga a sessão: o access token dela recebe 401 no `/me`.
-- [ ] Logout é idempotente (204 também na segunda chamada e para token desconhecido).
-- [ ] Sessões de aparelhos diferentes são independentes: o logout de uma não afeta a outra.
-- [ ] Nenhum log contém tokens.
+- [x] Refresh válido devolve um par novo, e o refresh antigo passa a responder 401 (rotação).
+- [x] Reusar um refresh já usado revoga a sessão: o refresh e o access emitidos depois dele também passam a receber 401.
+- [x] Refresh expirado (com `Clock` fake) responde 401 `REFRESH_INVALIDO`.
+- [x] A rotação é atômica: falha no meio não deixa dois tokens válidos.
+- [x] Logout revoga a sessão: o access token dela recebe 401 no `/me`.
+- [x] Logout é idempotente (204 também na segunda chamada e para token desconhecido).
+- [x] Sessões de aparelhos diferentes são independentes: o logout de uma não afeta a outra.
+- [x] Nenhum log contém tokens.

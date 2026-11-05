@@ -7,15 +7,9 @@ import type { PasswordHasher } from '@/domain/ports/PasswordHasher';
 import type { RefreshTokenGenerator } from '@/domain/ports/RefreshTokenGenerator';
 import type { GuardianRepository } from '@/domain/repositories/GuardianRepository';
 import type { SessionRepository } from '@/domain/repositories/SessionRepository';
+import type { SessionTokens } from './sessionTokens';
 
 export type LoginInput = Readonly<{ cpf: string; password: string }>;
-
-export type SessionTokens = Readonly<{
-  accessToken: string;
-  accessTokenExpiresIn: number;
-  refreshToken: string;
-  refreshTokenExpiresIn: number;
-}>;
 
 export type LoginResult = Readonly<{
   guardian: Guardian;

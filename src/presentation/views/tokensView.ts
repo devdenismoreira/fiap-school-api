@@ -1,4 +1,5 @@
-import type { LoginResult, SessionTokens } from '@/domain/usecases/login';
+import type { LoginResult } from '@/domain/usecases/login';
+import type { SessionTokens } from '@/domain/usecases/sessionTokens';
 import { guardianView, type GuardianView } from './guardianView';
 
 export type TokensView = Readonly<{

@@ -1,4 +1,4 @@
-import { loginSchema } from './authSchemas';
+import { loginSchema, refreshSchema } from './authSchemas';
 
 const CPF = '86686328685';
 
@@ -35,5 +35,28 @@ describe('loginSchema', () => {
     ['sem CPF', { senha: 'x' }],
   ])('recusa %s', (_caso, body) => {
     expect(loginSchema.safeParse(body).success).toBe(false);
+  });
+});
+
+describe('refreshSchema', () => {
+  it('aceita o refresh opaco em base64url', () => {
+    expect(
+      refreshSchema.safeParse({ refreshToken: 'A'.repeat(43) }).success,
+    ).toBe(true);
+  });
+
+  it.each([
+    ['sem o campo', {}],
+    ['vazio', { refreshToken: '' }],
+    ['curto demais', { refreshToken: 'abc' }],
+    ['longo demais', { refreshToken: 'A'.repeat(129) }],
+    [
+      'com caracteres fora do base64url',
+      { refreshToken: `${'A'.repeat(42)}=` },
+    ],
+    ['um JWT', { refreshToken: 'aaa.bbb.ccc'.repeat(4) }],
+    ['número', { refreshToken: 123 }],
+  ])('recusa refresh %s', (_caso, body) => {
+    expect(refreshSchema.safeParse(body).success).toBe(false);
   });
 });

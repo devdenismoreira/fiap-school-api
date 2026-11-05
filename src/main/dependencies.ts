@@ -5,6 +5,8 @@ import type { Logger } from '@/domain/ports/Logger';
 import { createAuthenticate } from '@/domain/usecases/authenticate';
 import { createGetCurrentGuardian } from '@/domain/usecases/getCurrentGuardian';
 import { createLogin } from '@/domain/usecases/login';
+import { createLogout } from '@/domain/usecases/logout';
+import { createRefreshSession } from '@/domain/usecases/refreshSession';
 import { PrismaDatabaseHealthCheck } from '@/infra/database/PrismaDatabaseHealthCheck';
 import { createPrismaClient } from '@/infra/database/prismaClient';
 import { PrismaGuardianRepository } from '@/infra/database/repositories/PrismaGuardianRepository';
@@ -17,6 +19,7 @@ import { SystemClock } from '@/infra/security/SystemClock';
 import { HealthController } from '@/presentation/controllers/HealthController';
 import { LoginController } from '@/presentation/controllers/LoginController';
 import { MeController } from '@/presentation/controllers/MeController';
+import { SessionController } from '@/presentation/controllers/SessionController';
 import {
   cpfRateLimitKey,
   createCpfRateLimit,
@@ -33,6 +36,7 @@ const HEALTH_CHECK_TIMEOUT_MILLISECONDS = 3000;
 const LOGIN_IP_LIMIT = { windowMs: 60_000, limit: 20 };
 const LOGIN_CPF_LIMIT = { windowMs: 15 * 60_000, limit: 5 };
 const AUTHENTICATED_IP_LIMIT = { windowMs: 60_000, limit: 120 };
+const SESSION_IP_LIMIT = { windowMs: 60_000, limit: 30 };
 
 export type Dependencies = Readonly<{
   app: Express;
@@ -67,18 +71,30 @@ export async function createDependencies(
   ]);
   const guardians = new PrismaGuardianRepository(prisma);
   const sessions = new PrismaSessionRepository(prisma);
+  const refreshTokens = new CryptoRefreshTokenGenerator();
 
   const login = createLogin({
     guardians,
     sessions,
     passwordHasher,
-    refreshTokens: new CryptoRefreshTokenGenerator(),
+    refreshTokens,
     accessTokens,
     clock,
     refreshTokenTtlSeconds: env.auth.refreshTokenTtlSeconds,
   });
   const loginController = new LoginController(login, logger, cpf =>
     cpfRateLimitKey(cpf, env.auth.cpfHmacSecret),
+  );
+  const sessionController = new SessionController(
+    createRefreshSession({
+      sessions,
+      refreshTokens,
+      accessTokens,
+      clock,
+      logger,
+      refreshTokenTtlSeconds: env.auth.refreshTokenTtlSeconds,
+    }),
+    createLogout({ sessions, refreshTokens, clock, logger }),
   );
   const requireAuth = createRequireAuth(
     createAuthenticate({ accessTokens, sessions, clock }),
@@ -107,6 +123,8 @@ export async function createDependencies(
       ),
       authRoutes({
         loginController,
+        sessionController,
+        sessionIpLimit: createIpRateLimit(SESSION_IP_LIMIT, logger),
         loginIpLimit: createIpRateLimit(LOGIN_IP_LIMIT, logger),
         loginCpfLimit: createCpfRateLimit(
           LOGIN_CPF_LIMIT,

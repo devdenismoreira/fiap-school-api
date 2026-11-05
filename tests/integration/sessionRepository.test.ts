@@ -152,6 +152,11 @@ describe('PrismaSessionRepository.rotate', () => {
 
     const after = await sessions.findByRefreshHash(refresh.hash);
     expect(after?.token.usedAt).toBeNull();
+    await expect(
+      prisma.refreshToken.count({
+        where: { sessionId: current!.token.sessionId },
+      }),
+    ).resolves.toBe(1);
   });
 });
 

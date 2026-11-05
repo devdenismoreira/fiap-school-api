@@ -11,3 +11,9 @@ export const loginSchema = z.object({
 });
 
 export type LoginBody = z.infer<typeof loginSchema>;
+
+export const refreshSchema = z.object({
+  refreshToken: z.string().regex(/^[A-Za-z0-9_-]{32,128}$/),
+});
+
+export type RefreshBody = z.infer<typeof refreshSchema>;

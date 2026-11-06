@@ -6,7 +6,7 @@
 
 Oferecer a agenda e os boletins de **um aluno**, para carregamento sob demanda numa evolução do app, garantindo que um responsável **não consiga consultar alunos de outro responsável trocando o RM na URL**. Isso cobre o risco nº 1 da OWASP API (autorização por objeto, BOLA/IDOR).
 
-O app usa estes endpoints para carregar a agenda e os boletins ao entrar, ao trocar de aluno e ao puxar a tela para atualizar (D-28). O `/me` e o login deixaram de trazê-los: mudança incompatível dentro de `/v1`, sem `/v2`, aceita porque o app é publicado antes da API enxuta.
+O app usa estes endpoints para carregar a agenda e os boletins ao entrar, ao trocar de aluno e ao puxar a tela para atualizar (D-28). O `/me` e o login deixaram de trazê-los: mudança incompatível dentro de `/v1`, sem `/v2`, aceita porque o app não é publicado em loja (a entrega é só o repositório) e não há clientes antigos.
 
 ## 2. Regras
 

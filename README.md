@@ -1,15 +1,15 @@
 # FIAP School API
 
-API do app FIAP School Mobile (React Native, em repositório separado). Ela substitui o JSON local do app por HTTP com autenticação JWT e sessões, **sem mudar telas, domínio nem a função de conversão do app**: o app troca só a camada de dados.
+API do app FIAP School Mobile (React Native, em repositório separado). Ela substitui o JSON local do app (que a entrega original usava) por HTTP com autenticação JWT e sessões, **sem mudar telas, domínio nem a função de conversão do app**: o app troca só a camada de dados.
 
-> **Status:** as tarefas T01 a T09 estão concluídas e validadas no Supabase (`sa-east-1`): API, segurança, contrato publicado no Swagger e paridade com o app. Faltam a T10 (integração, feita no repositório do app) e a T11 (deploy e entrega). Detalhes em [`tasks/README.md`](tasks/README.md).
+> **Status:** as tarefas T01 a T11 estão concluídas: API, segurança, contrato publicado no Swagger, deploy na Railway com HTTPS (banco no Supabase, `sa-east-1`) e integração no app (T10, feita no repositório dele). O login e o `/me` devolvem só o responsável e os alunos; agenda e boletins vêm pelas rotas de alunos (D-28).
 
 ## Endpoints
 
 | Endpoint | Autenticação | Função |
 |---|---|---|
-| `POST /v1/auth/login` | — | CPF e senha → abre uma sessão e devolve os tokens e o responsável completo |
-| `GET /v1/me` | Bearer | Responsável do token, usado para restaurar a sessão ao abrir o app |
+| `POST /v1/auth/login` | — | CPF e senha → abre uma sessão e devolve os tokens e o responsável com a lista de alunos (sem agenda nem boletins) |
+| `GET /v1/me` | Bearer | Responsável do token e seus alunos (`rm`, turma, período, nome), usado para restaurar a sessão ao abrir o app |
 | `POST /v1/auth/refresh` | refresh token no corpo | Renova a sessão, com rotação do refresh token e detecção de reuso |
 | `POST /v1/auth/logout` | refresh token no corpo | Revoga a sessão; é idempotente |
 | `GET /v1/alunos/{rm}/agenda` | Bearer | Agenda de um aluno **vinculado** ao responsável do token: `{ "agenda": [...] }` |
@@ -200,7 +200,7 @@ Todas as tabelas têm RLS ativado e ficam fora da Data API do Supabase. A API co
 - **Integração (`yarn test:integration`):** usam Supertest contra a API completa e o schema `fiap_school_test`:
   - login, `/me`, refresh, reuso, logout e alunos;
   - CORS e HTTPS em modo produção;
-  - seed, RLS e o teste de paridade, em que o `/me` precisa ser idêntico ao JSON do app para cada responsável;
+  - seed, RLS e o teste de paridade, em que o `/me` precisa ser idêntico ao JSON (só responsável e alunos) para cada responsável;
   - o teste de autorização, que percorre **todos os RMs** com o token de **cada** responsável.
 - **Contrato:** toda resposta dos testes de integração é conferida contra o `openapi.yaml`: status documentado, corpo no esquema e nenhuma chave `cpf`, `email`, `senha` ou `passwordHash`.
 - **Trava:** os testes de integração abortam se o `.env.test` não existir ou se alguma URL apontar para um schema que não termine em `_test`. Assim, nunca apagam os dados de desenvolvimento.

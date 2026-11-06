@@ -6,20 +6,7 @@
 
 Oferecer a agenda e os boletins de **um aluno**, para carregamento sob demanda numa evolução do app, garantindo que um responsável **não consiga consultar alunos de outro responsável trocando o RM na URL**. Isso cobre o risco nº 1 da OWASP API (autorização por objeto, BOLA/IDOR).
 
-O app atual continua usando só o `/me` (D-06). Estes endpoints são aditivos.
-
-## 2. Regras
-
-1. Os dois endpoints exigem `requireAuth`: access token válido e sessão ativa (spec 04 §2).
-2. O `{rm}` é validado com zod como texto `^[1-9]\d{0,8}# Feature — Agenda e boletins por aluno (com autorização)
-
-> Status: **aprovada em 2026-11-05** · Decisões: D-07 ✅ (autorização pelo vínculo), D-22 ✅ (404 para aluno não vinculado) · Endpoints: `GET /v1/alunos/{rm}/agenda` e `GET /v1/alunos/{rm}/boletins`
-
-## 1. Objetivo
-
-Oferecer a agenda e os boletins de **um aluno**, para carregamento sob demanda numa evolução do app, garantindo que um responsável **não consiga consultar alunos de outro responsável trocando o RM na URL**. Isso cobre o risco nº 1 da OWASP API (autorização por objeto, BOLA/IDOR).
-
-O app atual continua usando só o `/me` (D-06). Estes endpoints são aditivos.
+O app usa estes endpoints para carregar a agenda e os boletins ao entrar, ao trocar de aluno e ao puxar a tela para atualizar (D-28). O `/me` e o login deixaram de trazê-los: mudança incompatível dentro de `/v1`, sem `/v2`, aceita porque o app é publicado antes da API enxuta.
 
 ## 2. Regras
 

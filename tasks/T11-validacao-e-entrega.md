@@ -55,4 +55,4 @@ Garantir que a API cumpre as specs, está publicada com HTTPS e está documentad
 
 ## Status
 
-Não iniciada.
+Concluída: deploy na Railway com HTTPS, Swagger em produção (`/docs`), README e `AI_USAGE.md`. Pendências do desenvolvedor: tornar o repositório público e enviar o e-mail da entrega.

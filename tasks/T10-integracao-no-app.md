@@ -54,4 +54,4 @@ Itens:
 
 ## Status
 
-Não iniciada. Será detalhada no repositório do app.
+Concluída em 2026-11-05, no repositório do app (T11 e T13 de lá), e validada em aparelho.

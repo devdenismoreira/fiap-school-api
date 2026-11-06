@@ -11,7 +11,7 @@ O app usa estes endpoints para carregar a agenda e os boletins ao entrar, ao tro
 ## 2. Regras
 
 1. Os dois endpoints exigem `requireAuth`: access token válido e sessão ativa (spec 04 §2).
- (inteiro positivo de até 9 dígitos, sem zero à esquerda) e só então convertido em número. Fora disso: 400 `DADOS_INVALIDOS`. A validação roda depois do `requireAuth`, então quem não está autenticado recebe 401 antes de qualquer verificação do RM.
+2. O `{rm}` é validado com zod como texto `^[1-9]\d{0,8}$` (inteiro positivo de até 9 dígitos, sem zero à esquerda) e só então convertido em número. Fora disso: 400 `DADOS_INVALIDOS`. A validação roda depois do `requireAuth`, então quem não está autenticado recebe 401 antes de qualquer verificação do RM.
 3. **Autorização pelo vínculo:**
    - o caso de uso consulta o aluno **filtrando pelo responsável do token** (`responsavel_aluno` com `responsavel_id = sub` e `aluno_rm = rm`), numa única consulta;
    - nunca busca o aluno primeiro para comparar o dono depois.

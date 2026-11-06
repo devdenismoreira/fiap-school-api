@@ -367,7 +367,7 @@ components:
 
     Responsavel:
       type: object
-      description: Exatamente o ResponsavelDTO do app, sem cpf, email ou senha.
+      description: O responsável e a lista dos seus alunos, sem cpf, email, senha, agenda nem boletim. Agenda e boletins vêm das rotas de alunos.
       additionalProperties: false
       required: [id, primeiroNome, sobrenome, alunos]
       properties:
@@ -381,19 +381,13 @@ components:
     Aluno:
       type: object
       additionalProperties: false
-      required: [rm, turma, periodo, primeiroNome, sobrenome, agenda, boletim]
+      required: [rm, turma, periodo, primeiroNome, sobrenome]
       properties:
         rm: { type: integer, minimum: 1 }
         turma: { type: string, examples: ['7EF'] }
         periodo: { type: string, examples: [Matutino] }
         primeiroNome: { type: string }
         sobrenome: { type: string }
-        agenda:
-          type: array
-          items: { $ref: '#/components/schemas/DiaAgenda' }
-        boletim:
-          type: array
-          items: { $ref: '#/components/schemas/Boletim' }
 
     DiaAgenda:
       type: object

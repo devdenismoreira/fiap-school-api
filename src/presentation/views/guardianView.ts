@@ -1,7 +1,5 @@
 import type { Guardian } from '@/domain/entities/Guardian';
-import type { Student } from '@/domain/entities/Student';
-import { reportCardsView, type ReportCardView } from './reportCardsView';
-import { scheduleView, type ScheduleDayView } from './scheduleView';
+import type { StudentSummary } from '@/domain/entities/Student';
 
 export type StudentView = Readonly<{
   rm: number;
@@ -9,8 +7,6 @@ export type StudentView = Readonly<{
   periodo: string;
   primeiroNome: string;
   sobrenome: string;
-  agenda: readonly ScheduleDayView[];
-  boletim: readonly ReportCardView[];
 }>;
 
 export type GuardianView = Readonly<{
@@ -20,15 +16,13 @@ export type GuardianView = Readonly<{
   alunos: readonly StudentView[];
 }>;
 
-function studentView(student: Student): StudentView {
+function studentView(student: StudentSummary): StudentView {
   return {
     rm: student.rm,
     turma: student.className,
     periodo: student.shift,
     primeiroNome: student.firstName,
     sobrenome: student.lastName,
-    agenda: scheduleView(student.schedule),
-    boletim: reportCardsView(student.reportCards),
   };
 }
 

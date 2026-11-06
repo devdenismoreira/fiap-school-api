@@ -16,6 +16,8 @@ export function withoutCredentials(guardian: SeedGuardian) {
     id: guardian.id,
     primeiroNome: guardian.primeiroNome,
     sobrenome: guardian.sobrenome,
-    alunos: guardian.alunos,
+    alunos: guardian.alunos.map(
+      ({ agenda: _agenda, boletim: _boletim, ...student }) => student,
+    ),
   };
 }

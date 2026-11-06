@@ -2,7 +2,7 @@
 
 > Status: **aprovada em 2026-11-05** · Contract-first (D-14 ✅) · Versão `/v1` (D-15 ✅)
 
-Fonte do formato: `ResponsavelDTO` do app (`../FiapSchoolMobile/src/data/datasources/dtos.ts`). Qualquer mudança aqui precisa manter o app funcionando sem alteração no domínio nem na função `toGuardian`.
+Fonte do formato: DTOs do app (`../FiapSchoolMobile/src/data/datasources/dtos.ts`). Qualquer mudança aqui precisa manter o app funcionando sem alteração no domínio nem na função `toGuardian`.
 
 ## 1. Convenções
 
@@ -37,9 +37,9 @@ Mensagens fixas:
 - T03: `CREDENCIAIS_INVALIDAS` → "Usuário ou senha inválida.", `TOKEN_INVALIDO` → "Token de acesso inválido.", `TOKEN_EXPIRADO` → "Token de acesso expirado.", `REFRESH_INVALIDO` → "Sessão inválida ou expirada.", `ALUNO_NAO_ENCONTRADO` → "Aluno não encontrado." e `MUITAS_TENTATIVAS` → "Muitas tentativas. Tente novamente mais tarde.".
 - T04: `HTTPS_OBRIGATORIO` → "HTTPS obrigatório.".
 
-## 2. Objeto `Responsavel`
+## 2. Objeto `Responsavel` e dados do aluno
 
-É exatamente o `ResponsavelDTO` do app:
+O login e o `GET /v1/me` devolvem **só** o responsável e a lista dos seus alunos (D-28). Agenda e boletins **não** vêm aqui: são lidos pelas rotas de alunos, que verificam o vínculo entre o aluno e o responsável do token.
 
 ```json
 {
@@ -47,36 +47,39 @@ Mensagens fixas:
   "primeiroNome": "…",
   "sobrenome": "…",
   "alunos": [
-    {
-      "rm": 12345,
-      "turma": "7EF",
-      "periodo": "Matutino",
-      "primeiroNome": "…",
-      "sobrenome": "…",
-      "agenda": [
-        { "dia": "2025-03-16", "aulas": [] },
-        { "dia": "2025-03-17", "aulas": [{ "horario": "07:30 - 08:15", "disciplina": "…" }] }
-      ],
-      "boletim": [
-        {
-          "ano": "2025",
-          "turma": "7EF",
-          "trimestres": [
-            { "trimestre": 1, "disciplinas": [{ "nome": "…", "nota": 9.5, "faltas": 0 }] },
-            { "trimestre": 2, "disciplinas": [{ "nome": "…", "nota": null, "faltas": null }] }
-          ]
-        }
-      ]
-    }
+    { "rm": 12345, "turma": "7EF", "periodo": "Matutino", "primeiroNome": "…", "sobrenome": "…" }
   ]
 }
 ```
 
+Agenda e boletim de um aluno (rotas `/v1/alunos/{rm}/…`, §3):
+
+```json
+{ "agenda": [
+  { "dia": "2025-03-16", "aulas": [] },
+  { "dia": "2025-03-17", "aulas": [{ "horario": "07:30 - 08:15", "disciplina": "…" }] }
+] }
+```
+
+```json
+{ "boletins": [
+  {
+    "ano": "2025",
+    "turma": "7EF",
+    "trimestres": [
+      { "trimestre": 1, "disciplinas": [{ "nome": "…", "nota": 9.5, "faltas": 0 }] },
+      { "trimestre": 2, "disciplinas": [{ "nome": "…", "nota": null, "faltas": null }] }
+    ]
+  }
+] }
+```
+
 Regras:
 1. **Nunca** inclui `cpf`, `email`, `senha` nem campos de banco (`ordem`, ids internos de dias, aulas ou boletins).
-2. Arrays na ordem do JSON de origem. Dias sem aula com `aulas: []`.
-3. `nota` (número com até 1 casa decimal) e `faltas` (inteiro) podem ser `null`, e a chave sempre aparece.
-4. `dia` no formato `AAAA-MM-DD`; `ano` como texto.
+2. O responsável **não** traz `agenda` nem `boletim` dos alunos; o teste de contrato acusa essas chaves se aparecerem.
+3. Arrays na ordem do JSON de origem. Dias sem aula com `aulas: []`.
+4. `nota` (número com até 1 casa decimal) e `faltas` (inteiro) podem ser `null`, e a chave sempre aparece.
+5. `dia` no formato `AAAA-MM-DD`; `ano` como texto.
 
 ## 3. Endpoints
 
@@ -124,7 +127,7 @@ Autenticação: Bearer. Autorização: o aluno precisa estar vinculado ao respon
 - **200** (D-27):
   - `/agenda`: `{ "agenda": [{ "dia", "aulas": [{ "horario", "disciplina" }] }] }`;
   - `/boletins`: `{ "boletins": [{ "ano", "turma", "trimestres": [{ "trimestre", "disciplinas": [{ "nome", "nota", "faltas" }] }] }] }`;
-  - os arrays são os mesmos `agenda` e `boletim` do aluno no objeto `Responsavel`, com as mesmas regras de ordem e `null`.
+  - ordem do JSON de origem e `null` preservados, como nas regras do §2.
 - **400:** `DADOS_INVALIDOS` (RM que não seja inteiro positivo de 1 a 9 dígitos, sem zero à esquerda: não numérico, negativo, `0`, decimal, notação científica ou com mais de 9 dígitos).
 - **401:** `TOKEN_INVALIDO` ou `TOKEN_EXPIRADO`.
 - **404:** `ALUNO_NAO_ENCONTRADO`, idêntico para RM inexistente e para RM de outro responsável.

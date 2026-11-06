@@ -1,10 +1,10 @@
-import type { Student } from './Student';
+import type { StudentSummary } from './Student';
 
 export type Guardian = Readonly<{
   id: number;
   firstName: string;
   lastName: string;
-  students: readonly Student[];
+  students: readonly StudentSummary[];
 }>;
 
 export type GuardianCredentials = Readonly<{

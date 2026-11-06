@@ -111,3 +111,9 @@ Respondidas em 2026-11-05:
 - **Hospedagem:** escolhida ao fim do projeto, gratuita, por ao menos 30 dias (D-21).
 - **Supabase:** projeto ainda não criado. Será usado também no desenvolvimento, então precisa existir antes da T01 (D-04).
 - **Cliente web:** não existe; `CORS_ORIGINS` vazio (D-18).
+
+### Contrato enxuto (2026-11-06)
+
+| ID | Tema | Observação | Decisão |
+|---|---|---|---|
+| D-28 ✅ | `/me` e login sem agenda nem boletim | O app passou a ler a agenda e os boletins pelas rotas de alunos (D-38 do app), e o `/me` seguia devolvendo tudo de todos os alunos | **Decisão do desenvolvedor:** o login e o `GET /v1/me` devolvem só o responsável e os alunos (`rm`, `turma`, `periodo`, `primeiroNome`, `sobrenome`). O repositório deixa de carregar agenda e boletins no `findById`. Muda o contrato: o `ResponsavelDTO` perde `agenda` e `boletim`, e a paridade com o JSON passa a comparar sem esses campos. Versões antigas do app, que liam tudo do `/me`, deixam de funcionar |

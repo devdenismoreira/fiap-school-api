@@ -1,5 +1,5 @@
 import type { Guardian, GuardianCredentials } from '@/domain/entities/Guardian';
-import type { Student } from '@/domain/entities/Student';
+import type { Student, StudentSummary } from '@/domain/entities/Student';
 import type { GuardianRepository } from '@/domain/repositories/GuardianRepository';
 import type { Prisma, PrismaClient } from '../generated/prisma/client';
 
@@ -25,13 +25,19 @@ function toIsoDate(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
-function toStudent(row: StudentRow): Student {
+function toSummary(row: Prisma.StudentGetPayload<object>): StudentSummary {
   return {
     rm: row.rm,
     className: row.className,
     shift: row.shift,
     firstName: row.firstName,
     lastName: row.lastName,
+  };
+}
+
+function toStudent(row: StudentRow): Student {
+  return {
+    ...toSummary(row),
     schedule: row.schedule.map(day => ({
       date: toIsoDate(day.date),
       lessons: day.lessons.map(lesson => ({
@@ -66,7 +72,7 @@ export class PrismaGuardianRepository implements GuardianRepository {
         lastName: true,
         students: {
           orderBy: { position: 'asc' },
-          select: { student: { include: studentInclude } },
+          select: { student: true },
         },
       },
     });
@@ -77,7 +83,7 @@ export class PrismaGuardianRepository implements GuardianRepository {
       id: row.id,
       firstName: row.firstName,
       lastName: row.lastName,
-      students: row.students.map(link => toStudent(link.student)),
+      students: row.students.map(link => toSummary(link.student)),
     };
   }
 

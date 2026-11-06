@@ -290,6 +290,7 @@ O projeto segue Spec-Driven Development: `/specify` → aprovação → `/plan` 
 | [`specs/`](specs/README.md) | Visão geral e decisões (D-01 a D-27), arquitetura, modelo de dados, contrato, segurança e uma spec por funcionalidade |
 | [`tasks/`](tasks/README.md) | T01 a T11, com dependências, critérios de aceite, validação e status |
 | [`openapi.yaml`](openapi.yaml) | Contrato executável, validado pelos testes |
-| `CLAUDE.md` e `.claude/` | Contexto, regras, agentes (`architect`, `backend-developer`, `test-engineer`, `code-reviewer`) e comandos do ciclo SDD para o Claude Code. São configuração local, fora do git |
+| [`CLAUDE.md`](CLAUDE.md) | Contexto e regras do projeto para o Claude Code |
+| [`.claude/`](.claude/) | Agentes (`architect`, `backend-developer`, `test-engineer`, `code-reviewer`), comandos do ciclo SDD (`/specify`, `/plan`, `/implement`, `/validate`, `/review`) e permissões compartilhadas (`settings.json`). O `settings.local.json`, pessoal, fica fora do git |
 
 O uso de IA no projeto, com as evidências de validação, é registrado no `AI_USAGE.md` (T11).

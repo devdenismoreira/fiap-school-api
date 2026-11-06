@@ -19,7 +19,9 @@
     "test:integration": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js -c jest.integration.config.json --runInBand",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
+    "prisma:migrate:prod": "node --env-file=.env.production node_modules/prisma/build/index.js migrate deploy",
     "db:seed": "prisma db seed",
+    "db:seed:prod": "node --env-file=.env.production node_modules/tsx/dist/cli.mjs prisma/seed.ts --force",
     "postinstall": "prisma generate",
     "keys:generate": "tsx scripts/generateKeys.ts"
   },

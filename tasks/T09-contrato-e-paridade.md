@@ -22,7 +22,7 @@ Publicar o contrato no Swagger e provar, por teste, que o app pode trocar o data
 
 - [x] O teste de paridade passa para todos os responsáveis da fonte.
 - [x] Todas as respostas dos testes de integração são válidas contra o `openapi.yaml`.
-- [x] `/docs` responde em desenvolvimento e 404 em produção.
+- [x] `/docs` responde em desenvolvimento e 404 em produção. *Revisado na T11 (D-14): o Swagger passou a responder também em produção, só por HTTPS.*
 - [ ] A spec 03 e o `openapi.yaml` dizem a mesma coisa (revisão no `/review`).
 
 ## Validação

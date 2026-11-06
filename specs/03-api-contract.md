@@ -182,4 +182,4 @@ Regras do cliente (T10):
 
 ## 5. OpenAPI
 
-O `openapi.yaml` (OpenAPI 3.1, na raiz do repositório) foi escrito a partir desta spec na T09. Ele é servido pelo Swagger (`swagger-ui-express`) em `/docs` quando `NODE_ENV !== 'production'`. Os testes de integração validam cada resposta contra ele: status documentado, corpo no esquema e ausência de `cpf`, `email`, `senha` e `passwordHash`. Mudou o contrato, atualize esta spec e o `openapi.yaml` juntos.
+O `openapi.yaml` (OpenAPI 3.1, na raiz do repositório) foi escrito a partir desta spec na T09. Ele é servido pelo Swagger (`swagger-ui-express`) em `/docs`, em todos os ambientes (D-14). O `servers` é relativo (`/`), então o "Try it out" chama o próprio host em desenvolvimento e em produção. Os testes de integração validam cada resposta contra ele: status documentado, corpo no esquema e ausência de `cpf`, `email`, `senha` e `passwordHash`. Mudou o contrato, atualize esta spec e o `openapi.yaml` juntos.

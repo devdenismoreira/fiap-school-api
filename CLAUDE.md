@@ -57,7 +57,7 @@ O contrato detalhado fica em `specs/03-api-contract.md`. Regras que não podem s
 | Zod (4.6) | Validação de corpos, parâmetros e variáveis de ambiente | ✅ D-10 |
 | JWT (`jose` 6.2, ES256) | Autenticação. Só ESM: o Jest o transpila com `ts-jest` | ✅ D-08 |
 | bcrypt (6.0, custo 12) | Hash de senhas (seed e `BcryptPasswordHasher`) | ✅ D-09 |
-| Swagger (`swagger-ui-express` 5.0) + `openapi.yaml` (3.1) | Documentação em `/docs` fora de produção; `yaml`, `ajv` e `ajv-formats` (dev) validam as respostas dos testes contra o contrato | ✅ D-14 |
+| Swagger (`swagger-ui-express` 5.0) + `openapi.yaml` (3.1) | Documentação em `/docs`, em todos os ambientes (D-14, revisada na T11); `yaml`, `ajv` e `ajv-formats` (dev) validam as respostas dos testes contra o contrato | ✅ D-14 |
 | `cors` (2.8) | CORS por lista exata de origens, envolvido por `createCors` (403 no preflight não permitido) | ✅ D-18 |
 | `helmet` (8.3), `pino` (10.4), `pino-http` (11.0), `express-rate-limit` (8.7) | Cabeçalhos e HSTS, logs com redaction, limite de tentativas | ✅ D-11 |
 | Jest (30.5) + `ts-jest` (29.4) + Supertest (7.3), schema `fiap_school_test` no Supabase | Testes | ✅ D-13 |
@@ -212,7 +212,7 @@ A T10 é executada no repositório do app, com o SDD de lá.
 - Segurança da spec 04 aplicada e testada, incluindo autorização, sessões, CORS e HTTPS.
 - Publicada com HTTPS na hospedagem escolhida (D-21), com banco no Supabase.
 - Ambiente de desenvolvimento documentado no README: projeto no Supabase, schemas de desenvolvimento e de teste, migrations e seed.
-- Swagger publicado em `/docs` fora de produção.
+- Swagger publicado em `/docs`, inclusive em produção (D-14).
 - README com pré-requisitos, variáveis de ambiente, execução, testes e arquitetura.
 - Documentação SDD e `AI_USAGE.md` atualizados.
 

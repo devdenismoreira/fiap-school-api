@@ -17,7 +17,7 @@ API do app FIAP School Mobile (React Native, em repositório separado). Ela subs
 | `GET /health` | — | Saúde da API e do banco: 200 `{ "status": "ok" }` ou 503 |
 
 - **Contrato:** [`specs/03-api-contract.md`](specs/03-api-contract.md) e [`openapi.yaml`](openapi.yaml) (OpenAPI 3.1).
-- **Swagger:** fora de produção, em **`http://localhost:3000/docs`**.
+- **Swagger:** em **`/docs`**, em todos os ambientes: [produção](https://fiap-school-api-production.up.railway.app/docs) e `http://localhost:3000/docs` no desenvolvimento. O "Try it out" chama o próprio host.
 - **Erros:** sempre no formato `{ "erro": { "codigo": "…", "mensagem": "…" } }`.
 - **Cache:** toda resposta de `/v1` leva `Cache-Control: no-store`.
 
@@ -150,7 +150,7 @@ O `.env` e o `.env.test` ficam fora do git. A API não sobe sem as variáveis ob
 
 | Variável | Obrigatória | Padrão | Uso |
 |---|---|---|---|
-| `NODE_ENV` | sim | — | `development`, `test` ou `production`. Em produção, liga HTTPS obrigatório e HSTS e desliga o `/docs` |
+| `NODE_ENV` | sim | — | `development`, `test` ou `production`. Em produção, liga HTTPS obrigatório e HSTS |
 | `PORT` | não | `3000` | Porta HTTP |
 | `LOG_LEVEL` | não | `info` | Nível do `pino` (`silent` nos testes) |
 | `DATABASE_URL` | sim | — | Pooler do Supabase em modo transação (porta 6543), com `schema=…`, `sslmode=verify-full` e `sslrootcert=certs/supabase-ca.crt` |
@@ -261,7 +261,7 @@ Troque `https://SEU-SERVICO` pela URL do serviço:
 
 ```bash
 curl -i https://SEU-SERVICO/health                       # 200 {"status":"ok"} e Strict-Transport-Security
-curl -i https://SEU-SERVICO/docs/                         # 404: Swagger desligado em produção
+curl -i https://SEU-SERVICO/docs/                         # 200: Swagger (D-14)
 curl -i -X OPTIONS https://SEU-SERVICO/v1/auth/login \
   -H 'Origin: https://site-qualquer.com' \
   -H 'Access-Control-Request-Method: POST'                # 403: origem não permitida

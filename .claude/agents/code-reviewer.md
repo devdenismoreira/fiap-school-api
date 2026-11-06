@@ -37,7 +37,7 @@ Você revisa mudanças da FIAP School API. Leia o diff (`git diff`, `git diff --
    - **API8 (configuração):**
      - `helmet` e `x-powered-by` desligado;
      - sem stack trace;
-     - `/docs` só fora de produção;
+     - `/docs` só com o contrato público e, em produção, só por HTTPS (D-14);
      - `Cache-Control: no-store`;
      - HTTPS obrigatório em produção, com `trust proxy` exato, sem redirecionar e com HSTS;
      - CORS sem `*`, sem refletir a origem e sem credenciais;

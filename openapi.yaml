@@ -10,8 +10,12 @@ info:
     - Os arrays seguem a ordem de exibição do app; `nota` e `faltas` nulos significam "não lançado".
     - Nenhuma resposta contém `cpf`, `email` ou `senha`.
 servers:
+  - url: /
+    description: Este servidor (o mesmo host do Swagger)
+  - url: https://fiap-school-api-production.up.railway.app
+    description: Produção (Railway)
   - url: http://localhost:3000
-    description: Desenvolvimento
+    description: Desenvolvimento local
 tags:
   - name: Saúde
   - name: Autenticação

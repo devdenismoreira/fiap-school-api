@@ -6,7 +6,7 @@ import { createDependencies } from '../support/checkedDependencies';
 const env = loadEnv(process.env);
 
 describe('Swagger em /docs', () => {
-  it('responde fora de produção, com o openapi.yaml', async () => {
+  it('responde em desenvolvimento, com o openapi.yaml', async () => {
     const api: Dependencies = await createDependencies({
       ...env,
       nodeEnv: 'development',
@@ -24,28 +24,48 @@ describe('Swagger em /docs', () => {
     }
   });
 
-  it('não existe em produção: 404', async () => {
-    const api: Dependencies = await createDependencies({
-      ...env,
-      nodeEnv: 'production',
-      http: { ...env.http, trustProxy: 1 },
+  describe('em produção (D-14, revisada na T11)', () => {
+    let api: Dependencies;
+    beforeAll(async () => {
+      api = await createDependencies({
+        ...env,
+        nodeEnv: 'production',
+        http: { ...env.http, trustProxy: 1 },
+      });
     });
-    try {
-      for (const path of ['/docs/', '/docs/openapi.yaml']) {
-        const response = await request(api.app)
-          .get(path)
-          .set('X-Forwarded-Proto', 'https');
+    afterAll(() => api.close());
 
-        expect(response.status).toBe(404);
-        expect(response.body).toEqual({
-          erro: {
-            codigo: 'NAO_ENCONTRADO',
-            mensagem: 'Recurso não encontrado.',
-          },
-        });
-      }
-    } finally {
-      await api.close();
-    }
+    it('responde por HTTPS, com o openapi.yaml', async () => {
+      const page = await request(api.app)
+        .get('/docs/')
+        .set('X-Forwarded-Proto', 'https');
+      const spec = await request(api.app)
+        .get('/docs/openapi.yaml')
+        .set('X-Forwarded-Proto', 'https');
+
+      expect(page.status).toBe(200);
+      expect(page.text).toContain('swagger-ui');
+      expect(spec.status).toBe(200);
+      expect(spec.text).toContain('openapi: 3.1.0');
+    });
+
+    it('recusa HTTP com 403 HTTPS_OBRIGATORIO, como o resto da API', async () => {
+      const response = await request(api.app)
+        .get('/docs/')
+        .set('X-Forwarded-Proto', 'http');
+
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({
+        erro: { codigo: 'HTTPS_OBRIGATORIO', mensagem: 'HTTPS obrigatório.' },
+      });
+    });
+
+    it('aponta o "Try it out" para o próprio host (servers relativo)', async () => {
+      const spec = await request(api.app)
+        .get('/docs/openapi.yaml')
+        .set('X-Forwarded-Proto', 'https');
+
+      expect(spec.text).toMatch(/servers:\n\s+- url: \/\n/);
+    });
   });
 });

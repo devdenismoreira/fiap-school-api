@@ -154,7 +154,7 @@ export async function createDependencies(
         authenticatedIpLimit,
         requireAuth,
       }),
-      ...(env.nodeEnv === 'production' ? [] : [docsRoutes(OPENAPI_PATH)]),
+      docsRoutes(OPENAPI_PATH),
     ],
   });
 

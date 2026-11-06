@@ -83,7 +83,7 @@ O store em memória atende uma instância (D-11). O preflight `OPTIONS` não con
 - **Mensagens de erro:**
   - nunca têm stack trace, mensagem do Prisma, SQL ou detalhes de validação além do código;
   - erro de credenciais é sempre genérico.
-- `/docs` (Swagger) só fora de produção.
+- `/docs` (Swagger) em todos os ambientes (D-14, revisada na T11). Ele mostra só o contrato público e, em produção, só responde por HTTPS. Testar uma rota protegida por ele continua exigindo um access token válido.
 
 ## 8. Banco no Supabase (D-20)
 
@@ -144,7 +144,7 @@ O store em memória atende uma instância (D-11). O preflight `OPTIONS` não con
 | API5 Autorização por função | Não há rotas administrativas |
 | API6 Fluxos de negócio sensíveis | Login protegido contra força bruta |
 | API7 SSRF | A API não faz requisições de saída |
-| API8 Configuração | `helmet`, HTTPS obrigatório, HSTS, CORS restrito, sem stack trace, `/docs` só fora de produção, segredos fora do git, RLS no Supabase |
+| API8 Configuração | `helmet`, HTTPS obrigatório, HSTS, CORS restrito, sem stack trace, `/docs` só com o contrato público e só por HTTPS em produção, segredos fora do git, RLS no Supabase |
 | API9 Inventário | `/v1`, Swagger versionado |
 | API10 Consumo inseguro de APIs | Não se aplica |
 

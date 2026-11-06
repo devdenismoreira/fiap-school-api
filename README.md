@@ -26,7 +26,8 @@ API do app FIAP School Mobile (React Native, em repositório separado). Ela subs
 1. **Login:** `POST /v1/auth/login`. O app guarda o `refreshToken` no Keychain (iOS) ou Keystore (Android) e o `accessToken` só em memória.
 2. **Ao abrir o app:** `POST /v1/auth/refresh` com o refresh do Keychain → `GET /v1/me` com o novo access.
 3. **Access vencido:** `401 TOKEN_EXPIRADO` → um único refresh, compartilhado entre as requisições, e a repetição da requisição original.
-4. **Sair:** `POST /v1/auth/logout` e limpeza do Keychain.
+4. **Dados do aluno:** ao entrar, ao trocar de aluno e ao puxar a tela, `GET /v1/alunos/{rm}/agenda` e `/boletins`, com autorização pelo vínculo (D-28).
+5. **Sair:** `POST /v1/auth/logout` e limpeza do Keychain.
 
 ### Usuários de teste
 
@@ -38,6 +39,7 @@ São os responsáveis do JSON do desafio, em [`prisma/data/responsaveis.json`](p
 | id 2 | 1 aluno |
 | id 3 | Nenhum aluno (`alunos: []`) |
 | id 4 | 1 aluno sem boletim |
+| id 5 | 5 alunos (lista longa na troca de aluno) |
 
 Para testar no Swagger:
 1. Faça o **Try it out** no `POST /v1/auth/login`.
